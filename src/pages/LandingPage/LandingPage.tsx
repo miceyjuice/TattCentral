@@ -4,7 +4,8 @@ const LandingPage = () => {
 			<Navigation />
 			<main className="flex flex-col gap-8 items-center justify-center max-w-7xl mx-auto w-full my-10">
 				<HeroSection />
-				<RecentWorkSection />
+				<TattooWorkSection />
+				<OurArtistsSection />
 			</main>
 		</>
 	);
@@ -51,7 +52,7 @@ const HeroSection = () => {
 	);
 };
 
-const RecentWorkSection = () => {
+const TattooWorkSection = () => {
 	return (
 		<section className="flex flex-col gap-4 w-full px-10 mt-10">
 			<div className="flex items-center justify-between">
@@ -75,6 +76,45 @@ const RecentWorkSection = () => {
 				</div>
 				<div className="rounded-lg">
 					<img src="src/assets/images/tattoo-example-5.png" alt="Tattoo 5" className="w-full h-auto rounded-lg" />
+				</div>
+			</div>
+		</section>
+	);
+};
+
+const OurArtistsSection = () => {
+	return (
+		<section className="flex flex-col gap-4 w-full px-10 mt-10">
+			<div className="flex items-center justify-between">
+				<h2 className="text-2xl font-bold">Our Artists</h2>
+			</div>
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+				<div className="flex flex-col gap-4">
+					<div className="rounded-full">
+						<img src="src/assets/images/artist-1.png" alt="Tattoo 1" className="w-full h-auto rounded-full" />
+					</div>
+					<div className="text-center">
+						<h3 className="text-lg font-semibold">Sophia Bennett</h3>
+						<p className="text-sm text-gray-500">Specialty: Black & Grey</p>
+					</div>
+				</div>
+				<div className="flex flex-col gap-4">
+					<div className="rounded-full">
+						<img src="src/assets/images/artist-2.png" alt="Tattoo 2" className="w-full h-auto rounded-full" />
+					</div>
+					<div className="text-center">
+						<h3 className="text-lg font-semibold">Liam Carter</h3>
+						<p className="text-sm text-gray-500">Specialty: Color</p>
+					</div>
+				</div>
+				<div className="flex flex-col gap-4">
+					<div className="rounded-full">
+						<img src="src/assets/images/artist-3.png" alt="Tattoo 3" className="w-full h-auto rounded-full" />
+					</div>
+					<div className="text-center">
+						<h3 className="text-lg font-semibold">Noah Smith</h3>
+						<p className="text-sm text-gray-500">Specialty: Neo Traditional</p>
+					</div>
 				</div>
 			</div>
 		</section>
