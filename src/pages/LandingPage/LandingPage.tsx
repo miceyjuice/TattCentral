@@ -12,16 +12,16 @@ const LandingPage = () => {
 
 const Navigation = () => {
 	return (
-		<nav className="flex justify-between items-center p-4 text-white w-full">
+		<nav className="flex justify-between items-center py-4 px-8 text-white w-full">
 			{/* <img src="/logo.png" alt="Logo" className="logo" /> */}
-			<span className="font-inter">TattCentral</span>
-			<ul className="flex space-x-4 items-center">
-				<li className="inline-block mr-4">
+			<span className="font-inter font-bold tracking-wider">TattCentral</span>
+			<ul className="flex gap-6 items-center">
+				<li className="inline-block">
 					<a href="/about" className="font-inter text-white hover:text-gray-200">
 						About
 					</a>
 				</li>
-				<li className="inline-block mr-4">
+				<li className="inline-block">
 					<a href="/contact" className="text-white hover:text-gray-200">
 						Contact
 					</a>
