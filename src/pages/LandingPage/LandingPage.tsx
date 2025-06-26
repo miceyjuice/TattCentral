@@ -2,10 +2,11 @@ const LandingPage = () => {
 	return (
 		<>
 			<Navigation />
-			<main className="flex flex-col gap-8 items-center justify-center max-w-7xl mx-auto w-full my-10">
+			<main className="flex flex-col gap-20 items-center justify-center max-w-7xl mx-auto w-full my-10">
 				<HeroSection />
 				<TattooWorkSection />
 				<OurArtistsSection />
+				<ClientTestimonialsSection />
 			</main>
 		</>
 	);
@@ -28,8 +29,8 @@ const Navigation = () => {
 					</a>
 				</li>
 				<li className="inline-block">
-					<a href="/login" className="text-white hover:text-gray-200">
-						Login
+					<a href="/our-work" className="text-white hover:text-gray-200">
+						Our work
 					</a>
 				</li>
 				<li>
@@ -54,7 +55,7 @@ const HeroSection = () => {
 
 const TattooWorkSection = () => {
 	return (
-		<section className="flex flex-col gap-4 w-full px-10 mt-10">
+		<section className="flex flex-col gap-4 w-full px-10">
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold">Recent work</h2>
 				<a href="/gallery" className="hover:underline">
@@ -84,9 +85,9 @@ const TattooWorkSection = () => {
 
 const OurArtistsSection = () => {
 	return (
-		<section className="flex flex-col gap-4 w-full px-10 mt-10">
+		<section className="flex flex-col gap-4 w-full px-10">
 			<div className="flex items-center justify-between">
-				<h2 className="text-2xl font-bold">Our Artists</h2>
+				<h2 className="text-2xl font-bold">Our artists</h2>
 			</div>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
 				<div className="flex flex-col gap-4">
@@ -116,6 +117,23 @@ const OurArtistsSection = () => {
 						<p className="text-sm text-gray-500">Specialty: Neo Traditional</p>
 					</div>
 				</div>
+			</div>
+		</section>
+	);
+};
+
+const ClientTestimonialsSection = () => {
+	return (
+		<section className="flex flex-col gap-4 w-full px-10">
+			<div className="flex items-center justify-between">
+				<h2 className="text-2xl font-bold">Client testimonials</h2>
+			</div>
+			<div className="relative flex flex-col w-full gap-2 justify-end p-12 text-white bg-[url('/src/assets/images/tattoo-studio-client-testimony-bg.jpg')] bg-cover bg-center rounded-4xl min-h-[30rem] after:absolute after:inset-0 after:bg-black/50 after:content-[''] after:rounded-4xl">
+				<h4 className="z-20 text-lg font-bold">John Doe</h4>
+				<p className="z-20 text-lg opacity-75 max-w-2/3">
+					I had an amazing experience at TattCentral! The artists are incredibly talented and made me feel comfortable throughout
+					the process. Highly recommend!
+				</p>
 			</div>
 		</section>
 	);
