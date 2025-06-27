@@ -8,6 +8,7 @@ const LandingPage = () => {
 				<OurArtistsSection />
 				<ClientTestimonialsSection />
 			</main>
+			<Footer />
 		</>
 	);
 };
@@ -136,6 +137,31 @@ const ClientTestimonialsSection = () => {
 				</p>
 			</div>
 		</section>
+	);
+};
+
+const Footer = () => {
+	return (
+		<footer className="flex flex-col gap-2 items-center justify-center py-10  text-white/80">
+			<ul className="flex gap-6">
+				<li>
+					<a href="/privacy-policy" className="text-lg hover:underline">
+						Gallery
+					</a>
+				</li>
+				<li>
+					<a href="/terms-of-service" className="text-lg hover:underline">
+						Our artists
+					</a>
+				</li>
+				<li>
+					<a href="/terms-of-service" className="text-lg hover:underline">
+						Contact
+					</a>
+				</li>
+			</ul>
+			<p className="text-sm">© 2023 TattCentral. All rights reserved.</p>
+		</footer>
 	);
 };
 
