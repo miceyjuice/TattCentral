@@ -16,8 +16,10 @@ const LandingPage = () => {
 const Navigation = () => {
 	return (
 		<nav className="flex justify-between items-center py-4 px-8 text-white w-full">
-			{/* <img src="/logo.png" alt="Logo" className="logo" /> */}
-			<span className="font-inter font-bold tracking-wider">TattCentral</span>
+			<a href="/" className="flex items-center gap-2">
+				{/* <img src="/logo.png" alt="Logo" className="logo" /> */}
+				<span className="font-inter font-bold tracking-wider">TattCentral</span>
+			</a>
 			<ul className="flex gap-6 items-center">
 				<li className="inline-block">
 					<a href="/about" className="font-inter text-white hover:text-gray-200">
@@ -35,7 +37,9 @@ const Navigation = () => {
 					</a>
 				</li>
 				<li>
-					<button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Book now</button>
+					<a href="/booking" className="block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+						Book now
+					</a>
 				</li>
 			</ul>
 		</nav>
