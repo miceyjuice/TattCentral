@@ -1,9 +1,39 @@
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
+import { Textarea } from "@/components/ui/textarea";
 
 export const BookingPage = () => {
 	const [startDate, setStartDate] = useState<Date | null>(new Date());
+	const FormSchema = z.object({
+		name: z.string().min(2, {
+			message: "Name must be at least 2 characters.",
+		}),
+		email: z.string().email({
+			message: "Please enter a valid email address.",
+		}),
+		phone: z.string().min(10, {
+			message: "Phone number must be at least 10 digits.",
+		}),
+		tattooDescription: z.string().min(10, {
+			message: "Tattoo description must be at least 10 characters.",
+		}),
+	});
+	const form = useForm<z.infer<typeof FormSchema>>({
+		resolver: zodResolver(FormSchema),
+		defaultValues: {
+			name: "",
+			email: "",
+			phone: "",
+			tattooDescription: "",
+		},
+	});
 
 	const handleSelect = (date: Date | null) => {
 		if (date) {
@@ -17,34 +47,108 @@ export const BookingPage = () => {
 		return newDate;
 	};
 
+	const onSubmit = (data: z.infer<typeof FormSchema>) => {
+		console.log("Form submitted with data:", data);
+		// toast("You submitted the following values", {
+		// 	description: (
+		// 		<pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
+		// 			<code className="text-white">{JSON.stringify(data, null, 2)}</code>
+		// 		</pre>
+		// 	),
+		// });
+	};
+
 	return (
 		<>
 			<Navigation />
 			<main className="flex gap-20 justify-center max-w-7xl mx-auto w-full my-10 px-10">
-<div className="flex flex-col gap-10 w-full basis-2/3">
-				<section className="px-10 mx-auto min-h-[467px]">
-					<DatePicker
-						selected={startDate}
-						onSelect={handleSelect}
-						minDate={new Date()}
-						maxDate={addMonths(new Date(), 6)}
-						startDate={startDate}
-						inline
-						showDisabledMonthNavigation
-						calendarStartDay={1}
+				<div className="flex flex-col gap-10 w-full basis-2/3">
+					<section className="px-10 mx-auto min-h-[467px]">
+						<DatePicker
+							selected={startDate}
+							onSelect={handleSelect}
+							minDate={new Date()}
+							maxDate={addMonths(new Date(), 6)}
+							startDate={startDate}
+							inline
+							showDisabledMonthNavigation
+							calendarStartDay={1}
 							disabledKeyboardNavigation
-					/>
-				</section>
-				<section className="flex flex-col gap-4 w-full">
-					<h2 className="text-2xl font-bold">Available times</h2>
-					<div className="flex flex-col gap-4">
-						<ul className="flex gap-4 min-h-[2.75rem]">
-							<li className="border border-fire-sunset flex items-center rounded-lg bg-fire-sunset/25 px-4">10:00 AM</li>
-							<li className="border border-fire-sunset/25 flex items-center rounded-lg  px-4">11:30 AM</li>
-							<li className="border border-fire-sunset/25 flex items-center rounded-lg  px-4">1:00 PM</li>
-						</ul>
-						<p className="text-soft-white/50 text-sm">You have selected {startDate?.toLocaleDateString()} at 10:00 AM</p>
-					</div>
+						/>
+					</section>
+					<section className="flex flex-col gap-4 w-full">
+						<h2 className="text-2xl font-bold">Available times</h2>
+						<div className="flex flex-col gap-4">
+							<ul className="flex gap-4 min-h-[2.75rem]">
+								<li className="border border-fire-sunset flex items-center rounded-lg bg-fire-sunset/25 px-4">10:00 AM</li>
+								<li className="border border-fire-sunset/25 flex items-center rounded-lg  px-4">11:30 AM</li>
+								<li className="border border-fire-sunset/25 flex items-center rounded-lg  px-4">1:00 PM</li>
+							</ul>
+							<p className="text-soft-white/50 text-sm">You have selected {startDate?.toLocaleDateString()} at 10:00 AM</p>
+						</div>
+					</section>
+				</div>
+				<section className="flex flex-col gap-4 w-full basis-1/3">
+					<h2 className="text-2xl font-bold">Booking details</h2>
+					<Form {...form}>
+						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+							<FormField
+								control={form.control}
+								name="name"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Name</FormLabel>
+										<FormControl>
+											<Input placeholder="shadcn" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="email"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Email</FormLabel>
+										<FormControl>
+											<Input placeholder="shadcn" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="phone"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Phone</FormLabel>
+										<FormControl>
+											<Input placeholder="shadcn" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="tattooDescription"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Tattoo Description</FormLabel>
+										<FormControl>
+											<Textarea placeholder="Describe your tattoo idea, size, and placement" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<Button type="submit" className="w-full bg-fire-sunset">
+								Submit
+							</Button>
+						</form>
+					</Form>
 				</section>
 			</main>
 		</>
