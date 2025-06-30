@@ -20,17 +20,19 @@ export const BookingPage = () => {
 	return (
 		<>
 			<Navigation />
-			<main className="flex flex-col gap-20 items-center justify-center max-w-7xl mx-auto w-full my-10 px-10">
-				<section className="px-10 mx-auto">
+			<main className="flex gap-20 justify-center max-w-7xl mx-auto w-full my-10 px-10">
+<div className="flex flex-col gap-10 w-full basis-2/3">
+				<section className="px-10 mx-auto min-h-[467px]">
 					<DatePicker
 						selected={startDate}
 						onSelect={handleSelect}
 						minDate={new Date()}
-						maxDate={addMonths(new Date(), 5)}
+						maxDate={addMonths(new Date(), 6)}
 						startDate={startDate}
 						inline
 						showDisabledMonthNavigation
-						calendarClassName="bg-dark-gray"
+						calendarStartDay={1}
+							disabledKeyboardNavigation
 					/>
 				</section>
 				<section className="flex flex-col gap-4 w-full">
