@@ -9,9 +9,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export const BookingPage = () => {
 	const [startDate, setStartDate] = useState<Date | null>(new Date());
+	const [selectedTime, setSelectedTime] = useState<string | null>(null);
+
+	// TODO: Replace with actual available times from the backend or a more dynamic source
+	const availableTimes = ["10:00 AM", "11:30 AM", "1:00 PM", "2:30 PM"];
 
 	const zPhoneNumber = z.string().transform((value, ctx) => {
 		const phoneNumber = parsePhoneNumber(value, {
@@ -66,13 +71,8 @@ export const BookingPage = () => {
 
 	const onSubmit = (data: z.infer<typeof FormSchema>) => {
 		alert(`Form submitted with data: ${JSON.stringify(data, null, 2)}`);
-		// toast("You submitted the following values", {
-		// 	description: (
-		// 		<pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-		// 			<code className="text-white">{JSON.stringify(data, null, 2)}</code>
-		// 		</pre>
-		// 	),
-		// });
+
+		// TODO: Handle form submission, e.g., send data to an API or server
 	};
 
 	return (
@@ -97,16 +97,31 @@ export const BookingPage = () => {
 						<h2 className="text-2xl font-bold text-soft-white">Available times</h2>
 						<div className="flex flex-col gap-4">
 							<ul className="flex gap-4 min-h-[2.75rem]">
-								<li className="border border-fire-sunset flex items-center rounded-lg bg-fire-sunset/25 px-4 text-soft-white">
-									10:00 AM
-								</li>
-								<li className="border border-fire-sunset/25 flex items-center rounded-lg px-4 text-soft-white/75">11:30 AM</li>
-								<li className="border border-fire-sunset/25 flex items-center rounded-lg px-4 text-soft-white/75">1:00 PM</li>
+								{availableTimes.map((time) => (
+									<li key={time}>
+										<button
+											className={cn(
+												"border h-full flex items-center rounded-lg px-4 transition-colors",
+												selectedTime === time
+													? "border-fire-sunset bg-fire-sunset/25 text-soft-white"
+													: "border-fire-sunset/25 text-soft-white/75 hover:bg-fire-sunset/10"
+											)}
+											onClick={() => setSelectedTime(time)}
+										>
+											{time}
+										</button>
+									</li>
+								))}
 							</ul>
-							<p className="text-soft-white/50 text-sm">
-								You have selected <b>{startDate?.toLocaleDateString()} </b>
-								at <b>10:00 AM</b>
-							</p>
+							<div className="min-h-5">
+								{startDate && selectedTime && (
+									<p className="text-soft-white/50 text-sm">
+										You have selected <b>{startDate?.toLocaleDateString()} </b>
+										at
+										<b> {selectedTime}</b>.
+									</p>
+								)}
+							</div>
 						</div>
 					</section>
 				</div>
