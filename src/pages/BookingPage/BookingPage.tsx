@@ -1,3 +1,4 @@
+import parsePhoneNumber from "libphonenumber-js";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,24 @@ import { Textarea } from "@/components/ui/textarea";
 
 export const BookingPage = () => {
 	const [startDate, setStartDate] = useState<Date | null>(new Date());
+
+	const zPhoneNumber = z.string().transform((value, ctx) => {
+		const phoneNumber = parsePhoneNumber(value, {
+			defaultCountry: "PL",
+			defaultCallingCode: "+48",
+		});
+
+		if (!phoneNumber?.isValid()) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "Invalid phone number",
+			});
+			return z.NEVER;
+		}
+
+		return phoneNumber.formatInternational();
+	});
+
 	const FormSchema = z.object({
 		name: z.string().min(2, {
 			message: "Name must be at least 3 characters.",
@@ -18,9 +37,7 @@ export const BookingPage = () => {
 		email: z.string().email({
 			message: "Please enter a valid email address.",
 		}),
-		phone: z.string().min(10, {
-			message: "Phone number must be 9 digits.",
-		}),
+		phone: zPhoneNumber,
 		tattooDescription: z.string().min(10, {
 			message: "Tattoo description must be at least 10 characters.",
 		}),
@@ -48,7 +65,7 @@ export const BookingPage = () => {
 	};
 
 	const onSubmit = (data: z.infer<typeof FormSchema>) => {
-		console.log("Form submitted with data:", data);
+		alert(`Form submitted with data: ${JSON.stringify(data, null, 2)}`);
 		// toast("You submitted the following values", {
 		// 	description: (
 		// 		<pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
@@ -61,7 +78,7 @@ export const BookingPage = () => {
 	return (
 		<>
 			<Navigation />
-			<main className="flex gap-20 justify-center max-w-7xl mx-auto w-full my-10 px-10">
+			<main className="flex gap-4 justify-center max-w-7xl mx-auto w-full my-10 px-10">
 				<div className="flex flex-col gap-10 w-full basis-2/3">
 					<section className="px-10 mx-auto min-h-[467px]">
 						<DatePicker
@@ -86,7 +103,10 @@ export const BookingPage = () => {
 								<li className="border border-fire-sunset/25 flex items-center rounded-lg px-4 text-soft-white/75">11:30 AM</li>
 								<li className="border border-fire-sunset/25 flex items-center rounded-lg px-4 text-soft-white/75">1:00 PM</li>
 							</ul>
-							<p className="text-soft-white/50 text-sm">You have selected {startDate?.toLocaleDateString()} at 10:00 AM</p>
+							<p className="text-soft-white/50 text-sm">
+								You have selected <b>{startDate?.toLocaleDateString()} </b>
+								at <b>10:00 AM</b>
+							</p>
 						</div>
 					</section>
 				</div>
@@ -138,10 +158,10 @@ export const BookingPage = () => {
 								name="tattooDescription"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className="text-soft-white">Tattoo Description</FormLabel>
+										<FormLabel className="text-soft-white">Tattoo description</FormLabel>
 										<FormControl className="bg-gray-700/25 border-none">
 											<Textarea
-												className="py-3 text-soft-white"
+												className="py-3 text-soft-white max-h-40"
 												placeholder="Describe your tattoo idea, size, and placement"
 												{...field}
 											/>
