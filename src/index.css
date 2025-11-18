@@ -61,6 +61,7 @@ body {
 	min-width: 320px;
 	font-family: var(--font-inter);
 	background-color: var(--color-dark-gray);
+	color: var(--color-soft-white);
 }
 
 #root {
