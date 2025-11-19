@@ -10,7 +10,7 @@ interface AdminHeaderProps {
 }
 
 const AdminHeader = ({ title, description }: AdminHeaderProps) => {
-	const { logout } = useAuth();
+	const { logout, userProfile } = useAuth();
 	const navigate = useNavigate();
 	const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -49,7 +49,9 @@ const AdminHeader = ({ title, description }: AdminHeaderProps) => {
 							src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=200&q=80"
 						/>
 					</div>
-					<div className="hidden text-sm font-medium text-white md:block">Alex Morgan</div>
+					<div className="hidden text-sm font-medium text-white md:block">
+						{userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : "Loading..."}
+					</div>
 				</div>
 				<Button
 					className="flex items-center gap-2 border-none bg-transparent px-5 py-2 text-sm text-white/70 transition hover:bg-transparent hover:text-gray-400"
