@@ -5,26 +5,23 @@ import AdminHeader from "@/modules/admin/components/AdminHeader";
 import PastAppointmentsTable from "@/modules/admin/components/PastAppointmentsTable";
 
 const AdminDashboard = () => {
-	const { data, isLoading, isError, refetch } = useAppointments();
+	const { data, isLoading, isError, error, refetch } = useAppointments();
 	const upcomingAppointments: UpcomingAppointment[] = data?.upcoming ?? [];
 	const pastAppointments: PastAppointment[] = data?.past ?? [];
 
 	return (
 		<>
-			<AdminHeader
-				description="Manage sessions, confirm bookings, and keep clients updated."
-				title="Upcoming appointments"
-			/>
+			<AdminHeader description="Manage sessions, confirm bookings, and keep clients updated." title="Dashboard" />
 			<div className="mt-10 space-y-12">
 				{isLoading ? (
 					<UpcomingAppointmentsSkeleton />
 				) : isError ? (
-					<UpcomingAppointmentsError onRetry={() => void refetch()} />
+					<UpcomingAppointmentsError errorMessage={error.message} onRetry={() => void refetch()} />
 				) : upcomingAppointments.length ? (
-					<section className="grid gap-10 lg:grid-cols-[minmax(0,420px)]">
+					<section className="flex gap-8">
 						{upcomingAppointments.map((appointment) => (
 							<article
-								className="rounded-4xl border border-white/10 bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]"
+								className="w-1/2 rounded-4xl border border-white/10 bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]"
 								key={appointment.id}
 							>
 								<div className="h-60 w-full overflow-hidden rounded-t-4xl">
@@ -34,7 +31,7 @@ const AdminDashboard = () => {
 										src={appointment.image}
 									/>
 								</div>
-								<div className="space-y-5 px-8 pt-6 pb-8">
+								<div className="space-y-5 px-8 py-6">
 									<div className="space-y-2">
 										<h2 className="text-xl font-semibold">{appointment.studio}</h2>
 										<p className="text-sm text-white/60">{appointment.dateRange}</p>
@@ -61,17 +58,19 @@ const AdminDashboard = () => {
 				) : (
 					<UpcomingAppointmentsEmptyState />
 				)}
-				<div className="flex items-center justify-between">
-					<h2 className="text-lg font-semibold text-white">Recent history</h2>
-					<Link className="text-sm text-white/60 transition hover:text-white" to="/admin/history">
-						View all
-					</Link>
+				<div className="flex flex-col gap-4">
+					<div className="flex items-center justify-between">
+						<h2 className="text-lg font-semibold text-white">Recent history</h2>
+						<Link className="text-sm text-white/60 transition hover:text-white" to="/admin/history">
+							View all
+						</Link>
+					</div>
+					<PastAppointmentsTable
+						appointments={pastAppointments.slice(0, 3)}
+						emptyMessage="No completed appointments yet."
+						showHeading={false}
+					/>
 				</div>
-				<PastAppointmentsTable
-					appointments={pastAppointments.slice(0, 3)}
-					emptyMessage="No completed appointments yet."
-					showHeading={false}
-				/>
 			</div>
 		</>
 	);
@@ -100,13 +99,11 @@ const UpcomingAppointmentsSkeleton = () => {
 	);
 };
 
-const UpcomingAppointmentsError = ({ onRetry }: { onRetry: () => void }) => {
+const UpcomingAppointmentsError = ({ errorMessage, onRetry }: { errorMessage: string; onRetry: () => void }) => {
 	return (
 		<div className="rounded-4xl border border-red-500/50 bg-red-500/10 p-8 text-red-200">
 			<h2 className="text-lg font-semibold">We couldn’t load upcoming appointments</h2>
-			<p className="mt-2 text-sm text-red-100/80">
-				Please check your connection and try again. If the issue persists, contact the studio owner.
-			</p>
+			<p className="mt-2 text-sm text-red-100/80">Error: {errorMessage}</p>
 			<Button className="mt-6" onClick={onRetry} type="button" variant="outline">
 				Try again
 			</Button>

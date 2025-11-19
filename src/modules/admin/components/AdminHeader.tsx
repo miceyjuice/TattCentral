@@ -28,7 +28,7 @@ const AdminHeader = ({ title, description }: AdminHeaderProps) => {
 	};
 
 	return (
-		<header className="flex flex-col gap-6 border-b border-white/10 pb-10 lg:flex-row lg:items-center lg:justify-between">
+		<header className="flex flex-col gap-6 pb-10 lg:flex-row lg:items-center lg:justify-between">
 			<div className="space-y-2">
 				<h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
 				<p className="text-base text-white/60">{description}</p>

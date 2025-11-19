@@ -4,7 +4,7 @@ import AdminHeader from "@/modules/admin/components/AdminHeader";
 import PastAppointmentsTable from "@/modules/admin/components/PastAppointmentsTable";
 
 const AdminHistory = () => {
-	const { data, isLoading, isError, refetch } = useAppointments();
+	const { data, isLoading, isError, error, refetch } = useAppointments();
 	const pastAppointments: PastAppointment[] = data?.past ?? [];
 
 	return (
@@ -19,9 +19,7 @@ const AdminHistory = () => {
 				) : isError ? (
 					<div className="rounded-3xl border border-red-500/50 bg-red-500/10 p-8 text-red-200">
 						<h2 className="text-lg font-semibold">We couldn’t load past appointments</h2>
-						<p className="mt-2 text-sm text-red-100/80">
-							Try refreshing the page or checking your connection.
-						</p>
+						<p className="mt-2 text-sm text-red-100/80">Error: {error.message}</p>
 						<Button className="mt-6" onClick={() => void refetch()} type="button" variant="outline">
 							Retry
 						</Button>
