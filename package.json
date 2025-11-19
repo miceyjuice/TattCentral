@@ -1,24 +1,27 @@
 {
 	"name": "tattcentral",
 	"private": true,
-	"version": "0.10.0",
+	"version": "0.11.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"format": "prettier --write ."
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.1.1",
 		"@radix-ui/react-label": "^2.1.7",
 		"@radix-ui/react-slot": "^1.2.3",
 		"@tailwindcss/vite": "^4.1.10",
+		"@tanstack/react-query": "^5.90.10",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"firebase": "^12.6.0",
 		"libphonenumber-js": "^1.12.9",
 		"lucide-react": "^0.525.0",
+		"prettier-plugin-tailwindcss": "^0.7.1",
 		"react": "^19.1.0",
 		"react-datepicker": "^8.4.0",
 		"react-dom": "^19.1.0",
@@ -30,6 +33,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.25.0",
+		"@tanstack/react-query-devtools": "^5.90.2",
 		"@types/node": "^24.0.8",
 		"@types/react": "^19.1.2",
 		"@types/react-dom": "^19.1.2",
@@ -38,6 +42,7 @@
 		"eslint-plugin-react-hooks": "^5.2.0",
 		"eslint-plugin-react-refresh": "^0.4.19",
 		"globals": "^16.0.0",
+		"prettier": "3.6.2",
 		"tw-animate-css": "^1.3.4",
 		"typescript": "~5.8.3",
 		"typescript-eslint": "^8.30.1",

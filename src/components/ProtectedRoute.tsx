@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children, redirectTo = "/login" }: ProtectedRouteProps
 	if (loading) {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-[#171212] text-white">
-				<span className="text-sm uppercase tracking-[0.3em] text-white/60">Loading</span>
+				<span className="text-sm tracking-[0.3em] text-white/60 uppercase">Loading</span>
 			</div>
 		);
 	}

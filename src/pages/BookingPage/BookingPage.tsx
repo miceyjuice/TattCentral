@@ -78,9 +78,9 @@ export const BookingPage = () => {
 	return (
 		<>
 			<Navigation />
-			<main className="flex gap-4 justify-center max-w-7xl mx-auto w-full my-10 px-10">
-				<div className="flex flex-col gap-10 w-full basis-2/3">
-					<section className="px-10 mx-auto min-h-[467px]">
+			<main className="mx-auto my-10 flex w-full max-w-7xl justify-center gap-4 px-10">
+				<div className="flex w-full basis-2/3 flex-col gap-10">
+					<section className="mx-auto min-h-[467px] px-10">
 						<DatePicker
 							selected={startDate}
 							onSelect={handleSelect}
@@ -93,18 +93,18 @@ export const BookingPage = () => {
 							disabledKeyboardNavigation
 						/>
 					</section>
-					<section className="flex flex-col gap-4 w-full">
-						<h2 className="text-2xl font-bold text-soft-white">Available times</h2>
+					<section className="flex w-full flex-col gap-4">
+						<h2 className="text-soft-white text-2xl font-bold">Available times</h2>
 						<div className="flex flex-col gap-4">
-							<ul className="flex gap-4 min-h-[2.75rem]">
+							<ul className="flex min-h-[2.75rem] gap-4">
 								{availableTimes.map((time) => (
 									<li key={time}>
 										<button
 											className={cn(
-												"border h-full flex items-center rounded-lg px-4 transition-colors",
+												"flex h-full items-center rounded-lg border px-4 transition-colors",
 												selectedTime === time
 													? "border-fire-sunset bg-fire-sunset/25 text-soft-white"
-													: "border-fire-sunset/25 text-soft-white/75 hover:bg-fire-sunset/10"
+													: "border-fire-sunset/25 text-soft-white/75 hover:bg-fire-sunset/10",
 											)}
 											onClick={() => setSelectedTime(time)}
 										>
@@ -125,8 +125,8 @@ export const BookingPage = () => {
 						</div>
 					</section>
 				</div>
-				<section className="flex flex-col gap-6 w-full basis-1/3">
-					<h2 className="text-2xl font-bold text-soft-white">Booking details</h2>
+				<section className="flex w-full basis-1/3 flex-col gap-6">
+					<h2 className="text-soft-white text-2xl font-bold">Booking details</h2>
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 							<FormField
@@ -135,8 +135,8 @@ export const BookingPage = () => {
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-soft-white">Name</FormLabel>
-										<FormControl className="bg-gray-700/25 border-none">
-											<Input className="py-6 text-soft-white" placeholder="John Doe" {...field} />
+										<FormControl className="border-none bg-gray-700/25">
+											<Input className="text-soft-white py-6" placeholder="John Doe" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -148,8 +148,12 @@ export const BookingPage = () => {
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-soft-white">Email</FormLabel>
-										<FormControl className="bg-gray-700/25 border-none">
-											<Input className="py-6 text-soft-white" placeholder="john.doe@gmail.com" {...field} />
+										<FormControl className="border-none bg-gray-700/25">
+											<Input
+												className="text-soft-white py-6"
+												placeholder="john.doe@gmail.com"
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -161,8 +165,12 @@ export const BookingPage = () => {
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-soft-white">Phone</FormLabel>
-										<FormControl className="bg-gray-700/25 border-none">
-											<Input className="py-6 text-soft-white" placeholder="111 222 333" {...field} />
+										<FormControl className="border-none bg-gray-700/25">
+											<Input
+												className="text-soft-white py-6"
+												placeholder="111 222 333"
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -174,9 +182,9 @@ export const BookingPage = () => {
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-soft-white">Tattoo description</FormLabel>
-										<FormControl className="bg-gray-700/25 border-none">
+										<FormControl className="border-none bg-gray-700/25">
 											<Textarea
-												className="py-3 text-soft-white max-h-40"
+												className="text-soft-white max-h-40 py-3"
 												placeholder="Describe your tattoo idea, size, and placement"
 												{...field}
 											/>
@@ -187,7 +195,7 @@ export const BookingPage = () => {
 							/>
 							<Button
 								type="submit"
-								className="w-full bg-fire-sunset hover:bg-fire-sunset/75 text-soft-white transition-colors py-6 font-medium text-base"
+								className="bg-fire-sunset hover:bg-fire-sunset/75 text-soft-white w-full py-6 text-base font-medium transition-colors"
 							>
 								Submit
 							</Button>
@@ -201,12 +209,12 @@ export const BookingPage = () => {
 
 const Navigation = () => {
 	return (
-		<nav className="min-h-[4.5rem] flex justify-between items-center py-4 px-8 text-white w-full">
+		<nav className="flex min-h-[4.5rem] w-full items-center justify-between px-8 py-4 text-white">
 			<a href="/" className="flex items-center gap-2">
 				{/* <img src="/logo.png" alt="Logo" className="logo" /> */}
 				<span className="font-inter font-bold tracking-wider">TattCentral</span>
 			</a>{" "}
-			<ul className="flex gap-6 items-center">
+			<ul className="flex items-center gap-6">
 				<li className="inline-block">
 					<a href="/about" className="font-inter text-white hover:text-gray-200">
 						About
