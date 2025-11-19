@@ -1,5 +1,9 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
-import AdminPanel from "@/pages/AdminPanel/AdminPanel";
+import AdminLayout from "@/modules/admin/routes/AdminLayout";
+import AdminArtists from "@/modules/admin/routes/AdminArtists";
+import AdminDashboard from "@/modules/admin/routes/AdminDashboard";
+import AdminHistory from "@/modules/admin/routes/AdminHistory";
+import AdminSettings from "@/modules/admin/routes/AdminSettings";
 import { BookingPage } from "@/pages/BookingPage/BookingPage";
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import LandingPage from "@/pages/LandingPage/LandingPage";
@@ -15,10 +19,15 @@ function App() {
 					path="/admin"
 					element={
 						<ProtectedRoute>
-							<AdminPanel />
+							<AdminLayout />
 						</ProtectedRoute>
 					}
-				/>
+				>
+					<Route index element={<AdminDashboard />} />
+					<Route path="history" element={<AdminHistory />} />
+					<Route path="artists" element={<AdminArtists />} />
+					<Route path="settings" element={<AdminSettings />} />
+				</Route>
 				<Route path="/login" element={<LoginPage />} />
 			</Routes>
 		</BrowserRouter>
