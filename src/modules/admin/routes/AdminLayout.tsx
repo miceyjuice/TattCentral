@@ -20,12 +20,10 @@ const adminNavItems: AdminNavItem[] = [
 const AdminLayout = () => {
 	return (
 		<div className="min-h-screen bg-[#171212] text-white">
-			<div className="mx-auto flex min-h-screen max-w-[1440px] flex-col gap-10 px-4 py-10 lg:flex-row lg:gap-16 lg:px-12">
-				<aside className="flex h-full w-full flex-col justify-between lg:w-64">
+			<div className="mx-auto flex min-h-screen max-w-[1440px] flex-col gap-10 px-4 pt-20 pb-10 lg:flex-row lg:gap-16 lg:px-12">
+				<aside className="flex h-full w-full flex-col justify-between space-y-2 lg:w-64">
 					<div>
-						<div className="mb-8 pt-4 text-lg font-semibold tracking-[0.4em] text-white/80">
-							TattCentral
-						</div>
+						<div className="mb-8 pt-4 text-2xl font-semibold text-white/80">TattCentral</div>
 						<nav className="space-y-2">
 							{adminNavItems.map((item) => (
 								<NavLink
