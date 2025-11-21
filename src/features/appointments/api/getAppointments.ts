@@ -1,9 +1,19 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { AppointmentsResponse, AppointmentDocument, UpcomingAppointment, PastAppointment } from "../types";
+import type { UserRole } from "@/features/users";
 
-export const getAppointments = async (): Promise<AppointmentsResponse> => {
-	const querySnapshot = await getDocs(collection(db, "appointments"));
+export const getAppointments = async (userId?: string, role?: UserRole): Promise<AppointmentsResponse> => {
+	let q;
+
+	if (role === "artist" && userId) {
+		q = query(collection(db, "appointments"), where("artistId", "==", userId));
+	} else {
+		// Admin sees all (or default behavior)
+		q = collection(db, "appointments");
+	}
+
+	const querySnapshot = await getDocs(q);
 
 	const upcoming: UpcomingAppointment[] = [];
 	const past: PastAppointment[] = [];
