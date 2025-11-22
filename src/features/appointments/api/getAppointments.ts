@@ -42,14 +42,14 @@ export const getAppointments = async (userId?: string, role?: UserRole): Promise
 
 			upcoming.push({
 				id,
-				studio: data.artistName,
+				title: data.clientName || "Unknown Client",
 				dateRange,
 				image: data.imageUrl,
 			});
 		} else if (data.status === "completed") {
 			past.push({
 				id,
-				artist: data.artistName,
+				title: data.clientName || "Unknown Client",
 				date:
 					formatDate(data.startTime.toDate()).split(",")[0] +
 					"," +

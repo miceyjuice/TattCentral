@@ -38,7 +38,7 @@ const PastAppointmentsTable = ({
 					<thead className="bg-white/5 text-xs tracking-widest text-white/50 uppercase">
 						<tr>
 							<th className="px-6 py-4">Date</th>
-							<th className="px-6 py-4">Artist</th>
+							<th className="px-6 py-4">Client</th>
 							<th className="px-6 py-4">Rating</th>
 							<th className="px-6 py-4 text-right">Action</th>
 						</tr>
@@ -47,8 +47,8 @@ const PastAppointmentsTable = ({
 						{appointments.map((item) => (
 							<tr className="border-t border-white/5" key={item.id}>
 								<td className="px-6 py-4 text-white">{item.date}</td>
-								<td className="px-6 py-4 text-white/80">{item.artist}</td>
-								<td className="px-6 py-4 text-white/70">{item.rating}</td>
+								<td className="px-6 py-4 text-white/80">{item.title}</td>
+								<td className="px-6 py-4 text-white/60">{item.rating}</td>
 								<td className="px-6 py-4 text-right">
 									<button className="text-sm font-medium text-white transition hover:text-white/70">
 										{item.action}
