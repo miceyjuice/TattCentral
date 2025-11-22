@@ -33,7 +33,7 @@ const AdminDashboard = () => {
 								</div>
 								<div className="space-y-5 px-8 py-6">
 									<div className="space-y-2">
-										<h2 className="text-xl font-semibold">{appointment.studio}</h2>
+										<h2 className="text-xl font-semibold">{appointment.title}</h2>
 										<p className="text-sm text-white/60">{appointment.dateRange}</p>
 									</div>
 									<div className="flex gap-3">
