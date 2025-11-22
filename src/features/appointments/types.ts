@@ -8,7 +8,7 @@ export type AppointmentDocument = {
 	clientName: string;
 	startTime: Timestamp;
 	endTime: Timestamp;
-	status: "upcoming" | "completed" | "cancelled";
+	status: "upcoming" | "completed" | "cancelled" | "pending";
 	imageUrl: string;
 	rating?: number;
 };
@@ -18,6 +18,7 @@ export type UpcomingAppointment = {
 	title: string;
 	dateRange: string;
 	image: string;
+	status: "upcoming" | "pending";
 };
 
 export type PastAppointment = {

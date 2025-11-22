@@ -32,7 +32,7 @@ export const getAppointments = async (userId?: string, role?: UserRole): Promise
 				minute: "numeric",
 			}).format(date);
 
-		if (data.status === "upcoming") {
+		if (data.status === "upcoming" || data.status === "pending") {
 			const start = data.startTime.toDate();
 			const end = data.endTime.toDate();
 			const dateRange = `${formatDate(start)} - ${new Intl.DateTimeFormat("en-US", {
@@ -45,6 +45,7 @@ export const getAppointments = async (userId?: string, role?: UserRole): Promise
 				title: data.clientName || "Unknown Client",
 				dateRange,
 				image: data.imageUrl,
+				status: data.status,
 			});
 		} else if (data.status === "completed") {
 			past.push({

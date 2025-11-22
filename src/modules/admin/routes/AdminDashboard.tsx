@@ -24,12 +24,17 @@ const AdminDashboard = () => {
 								className="w-1/2 rounded-4xl border border-white/10 bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]"
 								key={appointment.id}
 							>
-								<div className="h-60 w-full overflow-hidden rounded-t-4xl">
+								<div className="relative h-60 w-full overflow-hidden rounded-t-4xl">
 									<img
-										alt={appointment.studio}
+										alt={appointment.title}
 										className="h-full w-full object-cover"
 										src={appointment.image}
 									/>
+									{appointment.status === "pending" && (
+										<span className="absolute top-4 right-4 rounded-full bg-yellow-500/90 px-3 py-1 text-xs font-bold text-black backdrop-blur-sm">
+											PENDING
+										</span>
+									)}
 								</div>
 								<div className="space-y-5 px-8 py-6">
 									<div className="space-y-2">
@@ -37,19 +42,39 @@ const AdminDashboard = () => {
 										<p className="text-sm text-white/60">{appointment.dateRange}</p>
 									</div>
 									<div className="flex gap-3">
-										<Button
-											className="rounded-full border border-transparent bg-[#2a1f1f] px-6 py-5 text-sm font-medium text-white transition hover:bg-[#332222]"
-											type="button"
-										>
-											Reschedule
-										</Button>
-										<Button
-											className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
-											type="button"
-											variant="outline"
-										>
-											Cancel
-										</Button>
+										{appointment.status === "pending" ? (
+											<>
+												<Button
+													className="rounded-full border border-transparent bg-green-600 px-6 py-5 text-sm font-medium text-white transition hover:bg-green-700"
+													type="button"
+												>
+													Approve
+												</Button>
+												<Button
+													className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
+													type="button"
+													variant="outline"
+												>
+													Decline
+												</Button>
+											</>
+										) : (
+											<>
+												<Button
+													className="rounded-full border border-transparent bg-[#2a1f1f] px-6 py-5 text-sm font-medium text-white transition hover:bg-[#332222]"
+													type="button"
+												>
+													Reschedule
+												</Button>
+												<Button
+													className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
+													type="button"
+													variant="outline"
+												>
+													Cancel
+												</Button>
+											</>
+										)}
 									</div>
 								</div>
 							</article>
