@@ -1,6 +1,6 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { UserDocument } from "./types";
+import type { UserDocument } from "@/features/users/types";
 
 export const getUserProfile = async (userId: string): Promise<UserDocument | null> => {
 	const docRef = doc(db, "users", userId);

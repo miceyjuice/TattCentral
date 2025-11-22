@@ -20,20 +20,20 @@ const PastAppointmentsTable = ({
 			<section className="rounded-3xl border border-white/10 bg-[#1f1818] p-8 text-white/60">
 				{showHeading ? <h2 className="text-lg font-semibold text-white">{title}</h2> : null}
 				{subtitle ? <p className="mt-1 text-sm text-white/50">{subtitle}</p> : null}
-				<p className="mt-6 text-sm">{emptyMessage}</p>
+				<p className="text-sm">{emptyMessage}</p>
 			</section>
 		);
 	}
 
 	return (
-		<section>
+		<section className="space-y-4">
 			{showHeading ? (
 				<div className="flex items-center justify-between">
 					<h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-					{subtitle ? <p className="text-xs tracking-[0.35em] text-white/40 uppercase">{subtitle}</p> : null}
+					{subtitle ? <p className="text-xs text-white/40 uppercase">{subtitle}</p> : null}
 				</div>
 			) : null}
-			<div className="mt-6 overflow-hidden rounded-3xl border border-white/10 bg-[#1f1818] shadow-[0_30px_80px_-40px_rgba(0,0,0,0.75)]">
+			<div className="overflow-hidden rounded-3xl border border-white/10 bg-[#1f1818] shadow-[0_30px_80px_-40px_rgba(0,0,0,0.75)]">
 				<table className="w-full table-fixed text-left text-sm text-white/80">
 					<thead className="bg-white/5 text-xs tracking-widest text-white/50 uppercase">
 						<tr>

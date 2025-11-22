@@ -25,7 +25,7 @@ const AdminHistory = () => {
 						</Button>
 					</div>
 				) : (
-					<PastAppointmentsTable appointments={pastAppointments} subtitle="Completed sessions" />
+					<PastAppointmentsTable appointments={pastAppointments} />
 				)}
 			</div>
 		</>
