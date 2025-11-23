@@ -1,11 +1,17 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useAppointments, type UpcomingAppointment, type PastAppointment } from "@/features/appointments";
+import {
+	useAppointments,
+	useUpdateAppointmentStatus,
+	type UpcomingAppointment,
+	type PastAppointment,
+} from "@/features/appointments";
 import AdminHeader from "@/modules/admin/components/AdminHeader";
 import PastAppointmentsTable from "@/modules/admin/components/PastAppointmentsTable";
 
 const AdminDashboard = () => {
 	const { data, isLoading, isError, error, refetch } = useAppointments();
+	const { mutate: updateStatus, isPending: isUpdating } = useUpdateAppointmentStatus();
 	const upcomingAppointments: UpcomingAppointment[] = data?.upcoming ?? [];
 	const pastAppointments: PastAppointment[] = data?.past ?? [];
 
@@ -47,6 +53,13 @@ const AdminDashboard = () => {
 												<Button
 													className="rounded-full border border-transparent bg-green-600 px-6 py-5 text-sm font-medium text-white transition hover:bg-green-700"
 													type="button"
+													onClick={() =>
+														updateStatus({
+															appointmentId: appointment.id,
+															status: "upcoming",
+														})
+													}
+													disabled={isUpdating}
 												>
 													Approve
 												</Button>
@@ -54,6 +67,13 @@ const AdminDashboard = () => {
 													className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
 													type="button"
 													variant="outline"
+													onClick={() =>
+														updateStatus({
+															appointmentId: appointment.id,
+															status: "cancelled",
+														})
+													}
+													disabled={isUpdating}
 												>
 													Decline
 												</Button>
@@ -70,6 +90,13 @@ const AdminDashboard = () => {
 													className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
 													type="button"
 													variant="outline"
+													onClick={() =>
+														updateStatus({
+															appointmentId: appointment.id,
+															status: "cancelled",
+														})
+													}
+													disabled={isUpdating}
 												>
 													Cancel
 												</Button>
