@@ -126,26 +126,20 @@ describe("CreateAppointmentDialog", () => {
 		futureDate.setDate(futureDate.getDate() + 1);
 		const dayToPick = futureDate.getDate().toString();
 
+		// Mock system date to a fixed value so the calendar always opens to a known month
+		const fixedDate = new Date(2024, 5, 10); // June 10, 2024
+		vi.setSystemTime(fixedDate);
+
 		// We need to wait for the calendar to appear
 		await waitFor(() => expect(screen.getByRole("grid")).toBeInTheDocument());
 
-		// Find the day button.
-		// Note: DayPicker renders days as buttons with text of the day number.
-		// We use getAllByText because there might be multiple (e.g. previous/next month),
-		// but usually the current month ones are enabled.
-		const dayButtons = screen.getAllByText(dayToPick, { selector: "button" });
+		// Pick a known day (e.g., 15th of the month)
+		const dayToPick = "15";
+		const dayButton = screen.getByRole("button", { name: dayToPick });
+		await user.click(dayButton);
 
-		// Click the first one that is not disabled
-		const enabledDay = dayButtons.find((b) => !b.hasAttribute("disabled"));
-		if (enabledDay) {
-			await user.click(enabledDay);
-		} else {
-			// Fallback: try to click the "Next Month" button and then pick a day
-			// But for now let's just try to click any enabled gridcell
-			const gridCells = screen.getAllByRole("gridcell");
-			const enabledCell = gridCells.find((c) => !c.hasAttribute("disabled"));
-			if (enabledCell) await user.click(enabledCell);
-		}
+		// Restore system time after test
+		vi.useRealTimers();
 
 		// Submit
 		await user.click(screen.getByRole("button", { name: /create booking/i }));
