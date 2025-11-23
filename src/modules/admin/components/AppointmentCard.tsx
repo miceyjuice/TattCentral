@@ -33,6 +33,7 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 									updateStatus({
 										appointmentId: appointment.id,
 										status: "upcoming",
+										successMessage: "Appointment approved",
 									})
 								}
 								disabled={isUpdating}
@@ -47,6 +48,7 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 									updateStatus({
 										appointmentId: appointment.id,
 										status: "cancelled",
+										successMessage: "Appointment declined",
 									})
 								}
 								disabled={isUpdating}
@@ -70,6 +72,7 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 									updateStatus({
 										appointmentId: appointment.id,
 										status: "cancelled",
+										successMessage: "Appointment cancelled",
 									})
 								}
 								disabled={isUpdating}

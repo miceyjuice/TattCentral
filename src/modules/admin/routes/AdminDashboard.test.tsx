@@ -156,7 +156,11 @@ describe("AdminDashboard", () => {
 
 		await user.click(screen.getByText("Approve"));
 
-		expect(mockMutate).toHaveBeenCalledWith({ appointmentId: "2", status: "upcoming" });
+		expect(mockMutate).toHaveBeenCalledWith({
+			appointmentId: "2",
+			status: "upcoming",
+			successMessage: "Appointment approved",
+		});
 	});
 
 	it("calls updateStatus when cancel button is clicked", async () => {
@@ -193,7 +197,11 @@ describe("AdminDashboard", () => {
 
 		await user.click(screen.getByText("Cancel"));
 
-		expect(mockMutate).toHaveBeenCalledWith({ appointmentId: "1", status: "cancelled" });
+		expect(mockMutate).toHaveBeenCalledWith({
+			appointmentId: "1",
+			status: "cancelled",
+			successMessage: "Appointment cancelled",
+		});
 	});
 
 	it("renders empty state when no appointments", () => {

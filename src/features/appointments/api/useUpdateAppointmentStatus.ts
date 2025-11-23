@@ -6,6 +6,7 @@ import { toast } from "sonner";
 type UpdateStatusParams = {
 	appointmentId: string;
 	status: "upcoming" | "cancelled";
+	successMessage?: string;
 };
 
 export const useUpdateAppointmentStatus = () => {
@@ -16,9 +17,9 @@ export const useUpdateAppointmentStatus = () => {
 			const appointmentRef = doc(db, "appointments", appointmentId);
 			await updateDoc(appointmentRef, { status });
 		},
-		onSuccess: (_, { status }) => {
+		onSuccess: (_, { status, successMessage }) => {
 			queryClient.invalidateQueries({ queryKey: ["appointments"] });
-			toast.success(`Appointment ${status === "upcoming" ? "approved" : "declined"}`);
+			toast.success(successMessage ?? `Appointment ${status === "upcoming" ? "approved" : "declined"}`);
 		},
 		onError: (error) => {
 			console.error("Error updating appointment status:", error);
