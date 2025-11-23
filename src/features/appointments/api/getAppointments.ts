@@ -22,7 +22,7 @@ export const getAppointments = async (userId?: string, role?: UserRole): Promise
 		const data = doc.data() as AppointmentDocument;
 		const id = doc.id;
 
-		// Helper to format dates like "July 15, 2024, 2:00 PM"
+		// Helper to format dates like "July 15, 2024, 14:00"
 		const formatDate = (date: Date) =>
 			new Intl.DateTimeFormat("en-US", {
 				month: "long",
@@ -30,6 +30,7 @@ export const getAppointments = async (userId?: string, role?: UserRole): Promise
 				year: "numeric",
 				hour: "numeric",
 				minute: "numeric",
+				hour12: false,
 			}).format(date);
 
 		if (data.status === "upcoming" || data.status === "pending") {
@@ -38,6 +39,7 @@ export const getAppointments = async (userId?: string, role?: UserRole): Promise
 			const dateRange = `${formatDate(start)} - ${new Intl.DateTimeFormat("en-US", {
 				hour: "numeric",
 				minute: "numeric",
+				hour12: false,
 			}).format(end)}`;
 
 			upcoming.push({

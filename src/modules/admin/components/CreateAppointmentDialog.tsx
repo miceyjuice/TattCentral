@@ -69,12 +69,13 @@ export function CreateAppointmentDialog() {
 				startTime: Timestamp.fromDate(startTime),
 				endTime: Timestamp.fromDate(endTime),
 				status: "upcoming",
-				imageUrl: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=800&auto=format&fit=crop&q=60", // Default placeholder
+				imageUrl:
+					"https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=800&auto=format&fit=crop&q=60", // Default placeholder
 				rating: 0,
 			});
 
 			toast("Appointment created", {
-				description: `Booked for ${values.clientName} on ${format(startTime, "PPP p")}`,
+				description: `Booked for ${values.clientName} on ${format(startTime, "PPP HH:mm")}`,
 			});
 
 			setOpen(false);
@@ -96,7 +97,7 @@ export function CreateAppointmentDialog() {
 					New Appointment
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[425px] bg-[#1f1818] text-white border-white/10">
+			<DialogContent className="border-white/10 bg-[#1f1818] text-white sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>Add New Appointment</DialogTitle>
 					<DialogDescription className="text-white/60">
@@ -112,7 +113,11 @@ export function CreateAppointmentDialog() {
 								<FormItem>
 									<FormLabel>Client Name</FormLabel>
 									<FormControl>
-										<Input placeholder="John Doe" {...field} className="bg-[#2a1f1f] border-white/10 text-white" />
+										<Input
+											placeholder="John Doe"
+											{...field}
+											className="border-white/10 bg-[#2a1f1f] text-white"
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -130,7 +135,7 @@ export function CreateAppointmentDialog() {
 												<FormControl>
 													<Button
 														variant={"outline"}
-														className={`w-full pl-3 text-left font-normal bg-[#2a1f1f] border-white/10 text-white hover:bg-[#332222] hover:text-white ${
+														className={`w-full border-white/10 bg-[#2a1f1f] pl-3 text-left font-normal text-white hover:bg-[#332222] hover:text-white ${
 															!field.value && "text-muted-foreground"
 														}`}
 													>
@@ -143,14 +148,15 @@ export function CreateAppointmentDialog() {
 													</Button>
 												</FormControl>
 											</PopoverTrigger>
-											<PopoverContent className="w-auto p-0 bg-[#1f1818] border-white/10 text-white" align="start">
+											<PopoverContent
+												className="w-auto border-white/10 bg-[#1f1818] p-0 text-white"
+												align="start"
+											>
 												<Calendar
 													mode="single"
 													selected={field.value}
 													onSelect={field.onChange}
-													disabled={(date) =>
-														date < new Date()
-													}
+													disabled={(date) => date < new Date()}
 													initialFocus
 													className="bg-[#1f1818] text-white"
 												/>
@@ -167,7 +173,11 @@ export function CreateAppointmentDialog() {
 									<FormItem>
 										<FormLabel>Time</FormLabel>
 										<FormControl>
-											<Input type="time" {...field} className="bg-[#2a1f1f] border-white/10 text-white" />
+											<Input
+												type="time"
+												{...field}
+												className="border-white/10 bg-[#2a1f1f] text-white"
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -175,7 +185,11 @@ export function CreateAppointmentDialog() {
 							/>
 						</div>
 						<DialogFooter>
-							<Button type="submit" disabled={form.formState.isSubmitting} className="bg-white text-black hover:bg-white/90 w-full sm:w-auto">
+							<Button
+								type="submit"
+								disabled={form.formState.isSubmitting}
+								className="w-full bg-white text-black hover:bg-white/90 sm:w-auto"
+							>
 								{form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 								Create Booking
 							</Button>
