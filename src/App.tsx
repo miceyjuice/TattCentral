@@ -8,6 +8,7 @@ import { BookingPage } from "@/pages/BookingPage/BookingPage";
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import LandingPage from "@/pages/LandingPage/LandingPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
 	return (
@@ -30,6 +31,7 @@ function App() {
 				</Route>
 				<Route path="/login" element={<LoginPage />} />
 			</Routes>
+			<Toaster />
 		</BrowserRouter>
 	);
 }

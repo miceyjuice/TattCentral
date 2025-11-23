@@ -18,10 +18,10 @@ const AdminDashboard = () => {
 				) : isError ? (
 					<UpcomingAppointmentsError errorMessage={error.message} onRetry={() => void refetch()} />
 				) : upcomingAppointments.length ? (
-					<section className="flex gap-8">
+					<section className="grid [grid-template-columns:repeat(3,1fr)] gap-6">
 						{upcomingAppointments.map((appointment) => (
 							<article
-								className="w-1/2 rounded-4xl border border-white/10 bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]"
+								className="rounded-4xl border border-white/10 bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]"
 								key={appointment.id}
 							>
 								<div className="relative h-60 w-full overflow-hidden rounded-t-4xl">
@@ -103,8 +103,8 @@ const AdminDashboard = () => {
 
 const UpcomingAppointmentsSkeleton = () => {
 	return (
-		<section className="grid gap-10 lg:grid-cols-[minmax(0,420px)]">
-			{Array.from({ length: 2 }).map((_, index) => (
+		<section className="grid gap-6 lg:[grid-template-columns:repeat(3,1fr)]">
+			{Array.from({ length: 3 }).map((_, index) => (
 				<div
 					className="animate-pulse overflow-hidden rounded-4xl border border-white/10 bg-[#1f1818]/60"
 					key={index}
