@@ -88,6 +88,37 @@ describe("CreateAppointmentDialog", () => {
 		});
 	});
 
+	it("shows error for short client name", async () => {
+		const user = userEvent.setup();
+		render(<CreateAppointmentDialog />);
+
+		await user.click(screen.getByRole("button", { name: /new appointment/i }));
+
+		const nameInput = screen.getByLabelText(/client name/i);
+		await user.type(nameInput, "A"); // Too short
+		await user.click(screen.getByRole("button", { name: /create booking/i }));
+
+		await waitFor(() => {
+			expect(screen.getByText("Client name must be at least 2 characters.")).toBeInTheDocument();
+		});
+	});
+
+	it("shows error for invalid time format", async () => {
+		const user = userEvent.setup();
+		render(<CreateAppointmentDialog />);
+
+		await user.click(screen.getByRole("button", { name: /new appointment/i }));
+
+		const timeInput = screen.getByLabelText(/time/i);
+		await user.clear(timeInput);
+		// We leave it empty, which should fail the regex validation for time format
+		await user.click(screen.getByRole("button", { name: /create booking/i }));
+
+		await waitFor(() => {
+			expect(screen.getByText("Please enter a valid time (HH:MM).")).toBeInTheDocument();
+		});
+	});
+
 	it("submits form with valid data", async () => {
 		const user = userEvent.setup();
 		render(<CreateAppointmentDialog />);
@@ -104,8 +135,8 @@ describe("CreateAppointmentDialog", () => {
 		await user.type(timeInput, "14:30");
 
 		// Select Date
-		// The button's visible text is "Pick a date", so we match it directly.
-		await user.click(screen.getByRole("button", { name: /pick a date/i }));
+		// The button has the label "Date" associated with it via FormLabel, so we use that name
+		await user.click(screen.getByRole("button", { name: "Date" }));
 
 		// Select a day.
 		// We'll try to find a day button. In DayPicker, days are usually buttons with role "gridcell" or just buttons.
