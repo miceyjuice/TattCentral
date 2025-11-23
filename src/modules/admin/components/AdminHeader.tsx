@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Bell, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { CreateAppointmentDialog } from "./CreateAppointmentDialog";
 
 interface AdminHeaderProps {
 	title: string;
@@ -34,6 +35,7 @@ const AdminHeader = ({ title, description }: AdminHeaderProps) => {
 				<p className="text-base text-white/60">{description}</p>
 			</div>
 			<div className="flex flex-wrap items-center gap-4">
+				<CreateAppointmentDialog />
 				<button
 					className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-[#241a1a] text-white/60 transition hover:text-white"
 					type="button"
