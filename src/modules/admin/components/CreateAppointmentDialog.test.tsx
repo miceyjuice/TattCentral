@@ -104,8 +104,8 @@ describe("CreateAppointmentDialog", () => {
 		await user.type(timeInput, "14:30");
 
 		// Select Date
-		// The button has the label "Date" associated with it via FormLabel
-		await user.click(screen.getByRole("button", { name: "Date" }));
+		// The button's visible text is "Pick a date", so we match it directly.
+		await user.click(screen.getByRole("button", { name: /pick a date/i }));
 
 		// Select a day.
 		// We'll try to find a day button. In DayPicker, days are usually buttons with role "gridcell" or just buttons.
