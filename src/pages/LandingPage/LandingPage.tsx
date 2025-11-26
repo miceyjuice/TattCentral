@@ -2,7 +2,7 @@ const LandingPage = () => {
 	return (
 		<>
 			<Navigation />
-			<main className="mx-auto my-10 flex w-full max-w-7xl flex-col items-center justify-center gap-20">
+			<main className="mx-auto my-10 flex w-full max-w-[1440px] flex-col items-center justify-center gap-20">
 				<HeroSection />
 				<TattooWorkSection />
 				<OurArtistsSection />
