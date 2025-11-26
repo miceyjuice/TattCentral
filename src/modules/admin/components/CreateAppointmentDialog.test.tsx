@@ -120,6 +120,12 @@ describe("CreateAppointmentDialog", () => {
 	});
 
 	it("submits form with valid data", async () => {
+		// Mock system date to a fixed value so the calendar always opens to a known month
+		// We do this before render so the component initializes with this date
+		vi.useFakeTimers({ toFake: ["Date"] });
+		const fixedDate = new Date(2024, 5, 10); // June 10, 2024
+		vi.setSystemTime(fixedDate);
+
 		const user = userEvent.setup();
 		render(<CreateAppointmentDialog />);
 
@@ -138,39 +144,14 @@ describe("CreateAppointmentDialog", () => {
 		// The button has the label "Date" associated with it via FormLabel, so we use that name
 		await user.click(screen.getByRole("button", { name: "Date" }));
 
-		// Select a day.
-		// We'll try to find a day button. In DayPicker, days are usually buttons with role "gridcell" or just buttons.
-		// Let's try to find a specific day number, e.g., "15" to be safe, or just the first available one.
-		// We need to make sure we pick a future date because past dates are disabled.
-		// The component has `disabled={(date) => date < new Date()}`.
-		// So we should pick a date that is definitely in the future.
-		// Since we can't easily control the "current date" of the test runner without system time mocking,
-		// we'll assume the calendar opens to the current month.
-		// We'll look for a day that is likely enabled (e.g. the 28th of the month, or we can mock system time).
-
-		// Let's mock system time to be fixed so we know what "today" is.
-		// Actually, let's just try to click a day that is likely to be in the future (e.g. 28).
-		// If today is the 30th, 28 might be disabled (past) or next month (future).
-		// A safer bet is to mock the date.
-
-		const futureDate = new Date();
-		futureDate.setDate(futureDate.getDate() + 1);
-		const dayToPick = futureDate.getDate().toString();
-
-		// Mock system date to a fixed value so the calendar always opens to a known month
-		const fixedDate = new Date(2024, 5, 10); // June 10, 2024
-		vi.setSystemTime(fixedDate);
-
 		// We need to wait for the calendar to appear
 		await waitFor(() => expect(screen.getByRole("grid")).toBeInTheDocument());
 
 		// Pick a known day (e.g., 15th of the month)
-		const dayToPick = "15";
-		const dayButton = screen.getByRole("button", { name: dayToPick });
+		// We use regex to match "15" in the aria-label (e.g. "Saturday, June 15th, 2024")
+		// and ensure we are picking the button for the day.
+		const dayButton = screen.getByRole("button", { name: /15/ });
 		await user.click(dayButton);
-
-		// Restore system time after test
-		vi.useRealTimers();
 
 		// Submit
 		await user.click(screen.getByRole("button", { name: /create booking/i }));
@@ -178,6 +159,9 @@ describe("CreateAppointmentDialog", () => {
 		await waitFor(() => {
 			expect(addDoc).toHaveBeenCalledTimes(1);
 		});
+
+		// Restore system time after test
+		vi.useRealTimers();
 
 		// Verify addDoc arguments
 		const callArgs = (addDoc as Mock).mock.calls[0];
