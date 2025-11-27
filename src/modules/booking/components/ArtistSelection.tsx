@@ -3,7 +3,7 @@ import { useArtists } from "../hooks/useArtists";
 import { User } from "lucide-react";
 
 interface ArtistSelectionProps {
-	selectedArtistId: string | null;
+	selectedArtistId: string | null | undefined;
 	onSelect: (artistId: string | null) => void;
 }
 

@@ -9,7 +9,7 @@ import { BookingStepper } from "../components/BookingStepper";
 import { BookingSummary } from "../components/BookingSummary";
 import { type ServiceOption, type BookingStep } from "../types";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAvailability } from "../hooks/useAvailability";
 import { useArtists } from "../hooks/useArtists";
 import { createAppointment } from "@/features/appointments/api/createAppointment";
@@ -17,6 +17,7 @@ import { assignArtist } from "../utils/assignArtist";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { addMinutes, setHours, setMinutes } from "date-fns";
+import { Navigation } from "@/components/Navigation";
 
 export const BookingRoute = () => {
 	const navigate = useNavigate();
@@ -24,7 +25,7 @@ export const BookingRoute = () => {
 	const { data: artists } = useArtists();
 	const [step, setStep] = useState<BookingStep>("service");
 	const [selectedService, setSelectedService] = useState<ServiceOption | null>(null);
-	const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
+	const [selectedArtistId, setSelectedArtistId] = useState<string | null | undefined>(undefined);
 	const [startDate, setStartDate] = useState<Date | null>(new Date());
 	const [selectedTime, setSelectedTime] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,17 +33,15 @@ export const BookingRoute = () => {
 	const { availableTimes, isLoading: isLoadingAvailability } = useAvailability(
 		startDate || undefined,
 		selectedService?.durationMinutes || 60,
-		selectedArtistId,
+		selectedArtistId || null,
 	);
 
 	const handleSelectService = (service: ServiceOption) => {
 		setSelectedService(service);
-		setStep("artist");
 	};
 
 	const handleSelectArtist = (artistId: string | null) => {
 		setSelectedArtistId(artistId);
-		setStep("datetime");
 	};
 
 	const handleSelectDate = (date: Date | null) => {
@@ -54,7 +53,6 @@ export const BookingRoute = () => {
 
 	const handleSelectTime = (time: string) => {
 		setSelectedTime(time);
-		setStep("details");
 	};
 
 	const handleBack = () => {
@@ -68,7 +66,43 @@ export const BookingRoute = () => {
 			case "details":
 				setStep("datetime");
 				break;
+			default:
+				break;
 		}
+	};
+
+	const handleNext = () => {
+		switch (step) {
+			case "service":
+				setStep("artist");
+				break;
+			case "artist":
+				setStep("datetime");
+				break;
+			case "datetime":
+				setStep("details");
+				break;
+		}
+	};
+
+	const canGoNext = () => {
+		switch (step) {
+			case "service":
+				return !!selectedService;
+			case "artist":
+				return selectedArtistId !== undefined;
+			case "datetime":
+				return !!startDate && !!selectedTime;
+			default:
+				return false;
+		}
+	};
+
+	const getArtistName = () => {
+		if (selectedArtistId === undefined) return "Not selected";
+		if (selectedArtistId === null) return "Any artist";
+		const artist = artists?.find((a) => a.id === selectedArtistId);
+		return artist ? `${artist.firstName} ${artist.lastName}` : "Unknown artist";
 	};
 
 	const onSubmit = async (data: BookingFormData) => {
@@ -124,33 +158,22 @@ export const BookingRoute = () => {
 
 	return (
 		<>
-			<Navigation />
-			<main className="mx-auto my-10 flex w-full max-w-[1440px] flex-col gap-10 px-6 lg:px-10">
-				{/* Top Stepper */}
-				<div className="mx-auto w-full max-w-3xl">
-					<BookingStepper currentStep={step} />
-				</div>
-
+			<Navigation showBookNow={false} />
+			<main className="mx-auto mt-24 flex w-full max-w-[1440px] flex-col gap-10 px-6 lg:px-10">
 				<div className="flex w-full flex-col gap-8 lg:flex-row lg:gap-12">
 					{/* Left Column: Main Content */}
 					<div className="flex-1">
-						{/* Header with Back Button */}
-						<div className="mb-8 flex items-center gap-4">
-							{step !== "service" && (
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={handleBack}
-									className="text-soft-white hover:bg-white/10"
-								>
-									<ChevronLeft className="h-6 w-6" />
-								</Button>
-							)}
+						{/* Top Stepper */}
+						<div className="mb-20 w-full">
+							<BookingStepper currentStep={step} />
+						</div>
+						{/* Header */}
+						<div className="mb-6 flex items-center gap-4">
 							<h1 className="text-soft-white text-3xl font-bold">
-								{step === "service" && "Select Service"}
-								{step === "artist" && "Select Artist"}
-								{step === "datetime" && "Select Date & Time"}
-								{step === "details" && "Your Details"}
+								{step === "service" && "Select service"}
+								{step === "artist" && "Select artist"}
+								{step === "datetime" && "Select date & time"}
+								{step === "details" && "Your details"}
 							</h1>
 						</div>
 
@@ -199,19 +222,28 @@ export const BookingRoute = () => {
 								/>
 							</div>
 						)}
+
+						{/* Navigation Buttons */}
+						<div className="mt-6 flex gap-4">
+							<Button onClick={handleBack} disabled={step === "service"} className="">
+								<ChevronLeft className="mr-2 h-4 w-4" />
+								Previous
+							</Button>
+
+							{step !== "details" && (
+								<Button onClick={handleNext} disabled={!canGoNext()} className="">
+									Next
+									<ChevronRight className="ml-2 h-4 w-4" />
+								</Button>
+							)}
+						</div>
 					</div>
 
 					{/* Right Column: Summary Panel */}
 					<div className="w-full lg:w-[380px]">
 						<BookingSummary
 							selectedService={selectedService}
-							artistName={
-								selectedArtistId
-									? artists?.find((a) => a.id === selectedArtistId)
-										? `${artists.find((a) => a.id === selectedArtistId)?.firstName} ${artists.find((a) => a.id === selectedArtistId)?.lastName}`
-										: "Unknown Artist"
-									: "Any Artist"
-							}
+							artistName={getArtistName()}
 							date={startDate}
 							time={selectedTime}
 						/>
@@ -219,33 +251,5 @@ export const BookingRoute = () => {
 				</div>
 			</main>
 		</>
-	);
-};
-
-const Navigation = () => {
-	return (
-		<nav className="flex min-h-[4.5rem] w-full items-center justify-between px-8 py-4 text-white">
-			<a href="/" className="flex items-center gap-2">
-				{/* <img src="/logo.png" alt="Logo" className="logo" /> */}
-				<span className="font-inter font-bold tracking-wider">TattCentral</span>
-			</a>{" "}
-			<ul className="flex items-center gap-6">
-				<li className="inline-block">
-					<a href="/about" className="font-inter text-white hover:text-gray-200">
-						About
-					</a>
-				</li>
-				<li className="inline-block">
-					<a href="/contact" className="text-white hover:text-gray-200">
-						Contact
-					</a>
-				</li>
-				<li className="inline-block">
-					<a href="/our-work" className="text-white hover:text-gray-200">
-						Our work
-					</a>
-				</li>
-			</ul>
-		</nav>
 	);
 };
