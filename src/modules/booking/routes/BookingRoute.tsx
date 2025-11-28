@@ -138,7 +138,7 @@ export const BookingRoute = () => {
 			await createAppointment({
 				artistId: finalArtistId!,
 				artistName: finalArtistName,
-				clientId: user?.uid || "guest", // Use guest ID if not logged in
+				clientId: user?.uid || `guest_${crypto.randomUUID()}`, // Generate unique guest ID
 				clientName: data.name,
 				type: selectedService.label,
 				startTime: startDateTime,
