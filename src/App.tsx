@@ -4,7 +4,7 @@ import AdminArtists from "@/modules/admin/routes/AdminArtists";
 import AdminDashboard from "@/modules/admin/routes/AdminDashboard";
 import AdminHistory from "@/modules/admin/routes/AdminHistory";
 import AdminSettings from "@/modules/admin/routes/AdminSettings";
-import { BookingPage } from "@/pages/BookingPage/BookingPage";
+import { BookingRoute } from "@/modules/booking/routes/BookingRoute";
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import LandingPage from "@/pages/LandingPage/LandingPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -15,7 +15,7 @@ function App() {
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={<LandingPage />} />
-				<Route path="/booking" element={<BookingPage />} />
+				<Route path="/booking" element={<BookingRoute />} />
 				<Route
 					path="/admin"
 					element={

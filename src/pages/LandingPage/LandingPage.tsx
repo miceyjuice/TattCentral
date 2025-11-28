@@ -1,8 +1,10 @@
+import { Navigation } from "@/components/Navigation";
+
 const LandingPage = () => {
 	return (
 		<>
 			<Navigation />
-			<main className="mx-auto my-10 flex w-full max-w-7xl flex-col items-center justify-center gap-20">
+			<main className="mx-auto my-10 flex w-full max-w-[1440px] flex-col items-center justify-center gap-20">
 				<HeroSection />
 				<TattooWorkSection />
 				<OurArtistsSection />
@@ -10,39 +12,6 @@ const LandingPage = () => {
 			</main>
 			<Footer />
 		</>
-	);
-};
-
-const Navigation = () => {
-	return (
-		<nav className="flex w-full items-center justify-between px-8 py-4 text-white">
-			<a href="/" className="flex items-center gap-2">
-				{/* <img src="/logo.png" alt="Logo" className="logo" /> */}
-				<span className="font-inter font-bold tracking-wider">TattCentral</span>
-			</a>
-			<ul className="flex items-center gap-6">
-				<li className="inline-block">
-					<a href="/about" className="font-inter text-white hover:text-gray-200">
-						About
-					</a>
-				</li>
-				<li className="inline-block">
-					<a href="/contact" className="text-white hover:text-gray-200">
-						Contact
-					</a>
-				</li>
-				<li className="inline-block">
-					<a href="/our-work" className="text-white hover:text-gray-200">
-						Our work
-					</a>
-				</li>
-				<li>
-					<a href="/booking" className="block rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
-						Book now
-					</a>
-				</li>
-			</ul>
-		</nav>
 	);
 };
 

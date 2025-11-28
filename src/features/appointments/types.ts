@@ -6,6 +6,7 @@ export type AppointmentDocument = {
 	clientId: string;
 	artistName: string;
 	clientName: string;
+	type: string;
 	startTime: Timestamp;
 	endTime: Timestamp;
 	status: "upcoming" | "completed" | "cancelled" | "pending";
@@ -16,6 +17,7 @@ export type AppointmentDocument = {
 export type UpcomingAppointment = {
 	id: string;
 	title: string;
+	type: string;
 	dateRange: string;
 	image: string;
 	status: "upcoming" | "pending";
@@ -25,6 +27,7 @@ export type PastAppointment = {
 	id: string;
 	date: string;
 	title: string;
+	type: string;
 	rating: string;
 	action: string;
 };

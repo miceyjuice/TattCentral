@@ -23,7 +23,10 @@ vi.mock("@/context/AuthContext", () => ({
 // Mock child components that might cause issues or are not the focus
 vi.mock("@/modules/admin/components/AdminHeader", () => ({
 	default: ({ title, description }: { title: string; description: string }) => (
-		<div data-testid="admin-header">{title}{description && ` - ${description}`}</div>
+		<div data-testid="admin-header">
+			{title}
+			{description && ` - ${description}`}
+		</div>
 	),
 }));
 
@@ -119,7 +122,7 @@ describe("AdminDashboard", () => {
 		);
 
 		expect(screen.getByText("Jane Smith")).toBeInTheDocument();
-		expect(screen.getByText("PENDING")).toBeInTheDocument();
+		expect(screen.getByText("Pending Approval")).toBeInTheDocument();
 		expect(screen.getByText("Approve")).toBeInTheDocument();
 		expect(screen.getByText("Decline")).toBeInTheDocument();
 	});
