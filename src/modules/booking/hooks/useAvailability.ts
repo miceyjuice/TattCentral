@@ -47,6 +47,7 @@ export const useAvailability = (date: Date | undefined, durationMinutes: number,
 				const slots: string[] = [];
 				let currentSlot = setMinutes(setHours(date, SHOP_OPEN_HOUR), 0);
 				const closingTime = setMinutes(setHours(date, SHOP_CLOSE_HOUR), 0);
+				const now = new Date();
 
 				while (
 					isBefore(addMinutes(currentSlot, durationMinutes), closingTime) ||
@@ -54,6 +55,12 @@ export const useAvailability = (date: Date | undefined, durationMinutes: number,
 				) {
 					const slotStart = currentSlot;
 					const slotEnd = addMinutes(currentSlot, durationMinutes);
+
+					// Skip past slots if the selected date is today
+					if (isBefore(slotStart, now)) {
+						currentSlot = addMinutes(currentSlot, SLOT_INTERVAL);
+						continue;
+					}
 
 					let isSlotAvailable = false;
 
