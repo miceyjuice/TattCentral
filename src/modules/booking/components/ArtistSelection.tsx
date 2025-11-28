@@ -14,6 +14,10 @@ export const ArtistSelection = ({ selectedArtistId, onSelect }: ArtistSelectionP
 		return <div className="text-soft-white/50 animate-pulse">Loading artists...</div>;
 	}
 
+	if (!artists || artists.length === 0) {
+		return <div className="text-soft-white/60">No artists available at the moment.</div>;
+	}
+
 	return (
 		<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
 			{/* Any Artist Option */}
