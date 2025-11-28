@@ -45,6 +45,7 @@ export const getAppointments = async (userId?: string, role?: UserRole): Promise
 			upcoming.push({
 				id,
 				title: data.clientName || "Unknown Client",
+				type: data.type || "Service name",
 				dateRange,
 				image: data.imageUrl,
 				status: data.status,
@@ -53,6 +54,7 @@ export const getAppointments = async (userId?: string, role?: UserRole): Promise
 			past.push({
 				id,
 				title: data.clientName || "Unknown Client",
+				type: data.type || "Service name",
 				date:
 					formatDate(data.startTime.toDate()).split(",")[0] +
 					"," +

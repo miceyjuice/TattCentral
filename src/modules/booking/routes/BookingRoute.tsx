@@ -139,6 +139,7 @@ export const BookingRoute = () => {
 				artistName: finalArtistName,
 				clientId: user?.uid || "guest", // Use guest ID if not logged in
 				clientName: data.name,
+				type: selectedService.label,
 				startTime: startDateTime,
 				endTime: endDateTime,
 				status: "pending", // Default to pending

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useUpdateAppointmentStatus, type UpcomingAppointment } from "@/features/appointments";
+import { cn } from "@/lib/utils";
 
 interface AppointmentCardProps {
 	appointment: UpcomingAppointment;
@@ -9,19 +10,33 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 	const { mutate: updateStatus, isPending: isUpdating } = useUpdateAppointmentStatus();
 
 	return (
-		<article className="rounded-4xl border border-white/10 bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]">
-			<div className="relative h-60 w-full overflow-hidden rounded-t-4xl">
-				<img alt={appointment.title} className="h-full w-full object-cover" src={appointment.image} />
-				{appointment.status === "pending" && (
-					<span className="absolute top-4 right-4 rounded-full bg-yellow-500/90 px-3 py-1 text-xs font-bold text-black backdrop-blur-sm">
-						PENDING
-					</span>
-				)}
+		<article
+			className={cn(
+				"rounded-4xl border bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]",
+				appointment.status === "pending" ? "border-yellow-500/50" : "border-white/10",
+			)}
+		>
+			<div className="w-full overflow-hidden rounded-t-4xl">
+				{/* <img alt={appointment.title} className="h-full w-full object-cover" src={appointment.image} /> */}
 			</div>
 			<div className="space-y-5 px-8 py-6">
-				<div className="space-y-2">
-					<h2 className="text-xl font-semibold">{appointment.title}</h2>
-					<p className="text-sm text-white/60">{appointment.dateRange}</p>
+				<div className="space-y-4">
+					<div className="flex flex-col gap-1">
+						<div className="mb-1 flex gap-2">
+							{appointment.status === "pending" && (
+								<div className="flex rounded-full border border-white/10 bg-yellow-500/90 px-3 py-1 backdrop-blur-sm">
+									<span className="text-[10px] font-medium text-black uppercase">
+										Pending Approval
+									</span>
+								</div>
+							)}
+							<div className="border-fire-sunset bg-fire-sunset/20 flex rounded-full border px-3 py-1 backdrop-blur-sm">
+								<span className="text-[10px] font-medium text-white uppercase">{appointment.type}</span>
+							</div>
+						</div>
+						<h2 className="text-xl font-semibold">{appointment.title}</h2>
+						<p className="text-sm text-white/60">{appointment.dateRange}</p>
+					</div>
 				</div>
 				<div className="flex gap-3">
 					{appointment.status === "pending" ? (

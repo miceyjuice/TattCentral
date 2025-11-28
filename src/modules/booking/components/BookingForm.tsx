@@ -75,7 +75,7 @@ export const BookingForm = ({ onSubmit, isSubmitting = false, isConsultation = f
 						<FormItem>
 							<FormLabel className="text-soft-white">Name</FormLabel>
 							<FormControl className="border-none bg-gray-700/25">
-								<Input className="text-soft-white py-6" placeholder="John Doe" {...field} />
+								<Input className="text-soft-white py-6" placeholder="John Doe" {...field} required />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -88,7 +88,12 @@ export const BookingForm = ({ onSubmit, isSubmitting = false, isConsultation = f
 						<FormItem>
 							<FormLabel className="text-soft-white">Email</FormLabel>
 							<FormControl className="border-none bg-gray-700/25">
-								<Input className="text-soft-white py-6" placeholder="john.doe@gmail.com" {...field} />
+								<Input
+									className="text-soft-white py-6"
+									placeholder="john.doe@gmail.com"
+									{...field}
+									required
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -101,7 +106,7 @@ export const BookingForm = ({ onSubmit, isSubmitting = false, isConsultation = f
 						<FormItem>
 							<FormLabel className="text-soft-white">Phone</FormLabel>
 							<FormControl className="border-none bg-gray-700/25">
-								<Input className="text-soft-white py-6" placeholder="111 222 333" {...field} />
+								<Input className="text-soft-white py-6" placeholder="111 222 333" {...field} required />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -124,6 +129,7 @@ export const BookingForm = ({ onSubmit, isSubmitting = false, isConsultation = f
 											: "Describe your tattoo idea, size, and placement"
 									}
 									{...field}
+									required
 								/>
 							</FormControl>
 							<FormMessage />
