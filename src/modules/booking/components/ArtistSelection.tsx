@@ -56,8 +56,7 @@ export const ArtistSelection = ({ selectedArtistId, onSelect }: ArtistSelectionP
 					<div className="bg-fire-sunset/20 flex h-12 w-12 items-center justify-center overflow-hidden rounded-full">
 						{/* Placeholder for avatar if we had one, using initials for now */}
 						<span className="text-fire-sunset font-bold">
-							{artist.firstName[0]}
-							{artist.lastName[0]}
+							{(artist.firstName?.[0] || "") + (artist.lastName?.[0] || "") || "?"}
 						</span>
 					</div>
 					<div className="text-center">
