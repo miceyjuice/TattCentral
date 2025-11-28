@@ -83,8 +83,8 @@ export const useAvailability = (date: Date | undefined, durationMinutes: number,
 					if (isSlotAvailable) {
 						slots.push(
 							new Intl.DateTimeFormat("en-US", {
-								hour: "numeric",
-								minute: "numeric",
+								hour: "2-digit",
+								minute: "2-digit",
 								hour12: false,
 							}).format(slotStart),
 						);
