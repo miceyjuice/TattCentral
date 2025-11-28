@@ -3,8 +3,8 @@ import { useArtists } from "../hooks/useArtists";
 import { User } from "lucide-react";
 
 interface ArtistSelectionProps {
-	selectedArtistId: string | null | undefined;
-	onSelect: (artistId: string | null) => void;
+	selectedArtistId: string | "any" | null;
+	onSelect: (artistId: string | "any") => void;
 }
 
 export const ArtistSelection = ({ selectedArtistId, onSelect }: ArtistSelectionProps) => {
@@ -23,10 +23,10 @@ export const ArtistSelection = ({ selectedArtistId, onSelect }: ArtistSelectionP
 			{/* Any Artist Option */}
 			<button
 				type="button"
-				onClick={() => onSelect(null)}
+				onClick={() => onSelect("any")}
 				className={cn(
 					"flex flex-col items-center justify-center gap-3 rounded-xl border p-6 transition-all",
-					selectedArtistId === null
+					selectedArtistId === "any"
 						? "border-fire-sunset bg-fire-sunset/10 ring-fire-sunset ring-1"
 						: "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10",
 				)}

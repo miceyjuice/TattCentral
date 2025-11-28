@@ -25,7 +25,8 @@ export const BookingRoute = () => {
 	const { data: artists } = useArtists();
 	const [step, setStep] = useState<BookingStep>("service");
 	const [selectedService, setSelectedService] = useState<ServiceOption | null>(null);
-	const [selectedArtistId, setSelectedArtistId] = useState<string | null | undefined>(undefined);
+	// "any" means user selected "Any Artist", null means no selection made yet
+	const [selectedArtistId, setSelectedArtistId] = useState<string | "any" | null>(null);
 	const [startDate, setStartDate] = useState<Date | null>(new Date());
 	const [selectedTime, setSelectedTime] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,14 +34,14 @@ export const BookingRoute = () => {
 	const { availableTimes, isLoading: isLoadingAvailability } = useAvailability(
 		startDate || undefined,
 		selectedService?.durationMinutes || 60,
-		selectedArtistId || null,
+		selectedArtistId === "any" ? null : selectedArtistId,
 	);
 
 	const handleSelectService = (service: ServiceOption) => {
 		setSelectedService(service);
 	};
 
-	const handleSelectArtist = (artistId: string | null) => {
+	const handleSelectArtist = (artistId: string | "any") => {
 		setSelectedArtistId(artistId);
 	};
 
@@ -90,7 +91,7 @@ export const BookingRoute = () => {
 			case "service":
 				return !!selectedService;
 			case "artist":
-				return selectedArtistId !== undefined;
+				return selectedArtistId !== null;
 			case "datetime":
 				return !!startDate && !!selectedTime;
 			default:
@@ -99,8 +100,8 @@ export const BookingRoute = () => {
 	};
 
 	const getArtistName = () => {
-		if (selectedArtistId === undefined) return "Not selected";
-		if (selectedArtistId === null) return "Any artist";
+		if (selectedArtistId === null) return "Not selected";
+		if (selectedArtistId === "any") return "Any artist";
 		const artist = artists?.find((a) => a.id === selectedArtistId);
 		return artist ? `${artist.firstName} ${artist.lastName}` : "Unknown artist";
 	};
@@ -115,7 +116,7 @@ export const BookingRoute = () => {
 			const startDateTime = setMinutes(setHours(startDate, hours), minutes);
 			const endDateTime = addMinutes(startDateTime, selectedService.durationMinutes);
 
-			let finalArtistId = selectedArtistId;
+			let finalArtistId = selectedArtistId === "any" ? null : selectedArtistId;
 			let finalArtistName = "";
 
 			if (finalArtistId) {
