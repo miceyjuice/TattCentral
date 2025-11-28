@@ -8,6 +8,10 @@ interface TimeSlotPickerProps {
 }
 
 export const TimeSlotPicker = ({ availableTimes, selectedTime, onSelectTime, selectedDate }: TimeSlotPickerProps) => {
+	if (availableTimes.length === 0) {
+		return <p className="text-soft-white/60">No available time slots for this date.</p>;
+	}
+
 	return (
 		<div className="flex flex-col gap-4">
 			<ul className="flex min-h-[2.75rem] flex-wrap gap-4">
