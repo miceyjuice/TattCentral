@@ -122,7 +122,7 @@ describe("AdminDashboard", () => {
 		);
 
 		expect(screen.getByText("Jane Smith")).toBeInTheDocument();
-		expect(screen.getByText("PENDING")).toBeInTheDocument();
+		expect(screen.getByText("Pending Approval")).toBeInTheDocument();
 		expect(screen.getByText("Approve")).toBeInTheDocument();
 		expect(screen.getByText("Decline")).toBeInTheDocument();
 	});
