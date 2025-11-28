@@ -129,7 +129,7 @@ export const BookingForm = ({ onSubmit, isSubmitting = false, isConsultation = f
 											: "Describe your tattoo idea, size, and placement"
 									}
 									{...field}
-									required
+									required={!isConsultation}
 								/>
 							</FormControl>
 							<FormMessage />
