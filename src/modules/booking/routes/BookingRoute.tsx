@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAvailability } from "../hooks/useAvailability";
 import { useArtists } from "../hooks/useArtists";
-import { createAppointment } from "@/features/appointments/api/createAppointment";
+import { createAppointment, generateAppointmentId } from "@/features/appointments/api/createAppointment";
 import { assignArtist } from "../utils/assignArtist";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -138,10 +138,13 @@ export const BookingRoute = () => {
 				finalArtistName = `${assigned.firstName} ${assigned.lastName}`;
 			}
 
+			// Generate appointment ID first so we can organize uploads
+			const appointmentId = generateAppointmentId();
+
 			const referenceImageUrls: string[] = [];
 			if (data.referenceImages && data.referenceImages.length > 0) {
 				const uploadPromises = Array.from(data.referenceImages).map(async (file) => {
-					const storageRef = ref(storage, `reference-images/${Date.now()}_${file.name}`);
+					const storageRef = ref(storage, `appointments/${appointmentId}/reference-images/${file.name}`);
 					await uploadBytes(storageRef, file);
 					const url = await getDownloadURL(storageRef);
 					return url;
@@ -150,19 +153,22 @@ export const BookingRoute = () => {
 				referenceImageUrls.push(...urls);
 			}
 
-			await createAppointment({
-				artistId: finalArtistId!,
-				artistName: finalArtistName,
-				clientId: user?.uid || `guest_${crypto.randomUUID()}`, // Generate unique guest ID
-				clientName: data.name,
-				type: selectedService.label,
-				startTime: startDateTime,
-				endTime: endDateTime,
-				status: "pending", // Default to pending
-				imageUrl:
-					"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop", // Placeholder
-				referenceImageUrls,
-			});
+			await createAppointment(
+				{
+					artistId: finalArtistId!,
+					artistName: finalArtistName,
+					clientId: user?.uid || `guest_${crypto.randomUUID()}`, // Generate unique guest ID
+					clientName: data.name,
+					type: selectedService.label,
+					startTime: startDateTime,
+					endTime: endDateTime,
+					status: "pending", // Default to pending
+					imageUrl:
+						"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop", // Placeholder
+					referenceImageUrls,
+				},
+				appointmentId,
+			);
 
 			toast.success("Appointment request sent!");
 			navigate("/"); // Redirect to home or success page

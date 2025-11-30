@@ -29,8 +29,18 @@ vi.mock("firebase/storage", () => ({
 	getDownloadURL: vi.fn().mockResolvedValue("https://example.com/image.jpg"),
 }));
 
+vi.mock("firebase/firestore", () => ({
+	collection: vi.fn(),
+	doc: vi.fn(() => ({ id: "mock-appointment-id" })),
+	setDoc: vi.fn(),
+	Timestamp: {
+		fromDate: vi.fn((date) => date),
+	},
+}));
+
 vi.mock("@/lib/firebase", () => ({
 	storage: {},
+	db: {},
 }));
 
 // Mock data
@@ -155,6 +165,7 @@ describe("BookingRoute", () => {
 					artistId: "1",
 					type: "Small Tattoo",
 				}),
+				"mock-appointment-id",
 			);
 		});
 	});
@@ -184,6 +195,7 @@ describe("BookingRoute", () => {
 				expect.objectContaining({
 					artistId: "1", // Assigned artist ID
 				}),
+				"mock-appointment-id",
 			);
 		});
 	});
@@ -219,6 +231,7 @@ describe("BookingRoute", () => {
 				expect.objectContaining({
 					referenceImageUrls: ["https://example.com/image.jpg"],
 				}),
+				"mock-appointment-id",
 			);
 		});
 	});
