@@ -20,7 +20,7 @@ import { addMinutes, setHours, setMinutes } from "date-fns";
 import { Navigation } from "@/components/Navigation";
 
 import { storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
 export const BookingRoute = () => {
 	const navigate = useNavigate();
@@ -142,33 +142,44 @@ export const BookingRoute = () => {
 			const appointmentId = generateAppointmentId();
 
 			const referenceImageUrls: string[] = [];
-			if (data.referenceImages && data.referenceImages.length > 0) {
-				const uploadPromises = Array.from(data.referenceImages).map(async (file) => {
-					const storageRef = ref(storage, `appointments/${appointmentId}/reference-images/${file.name}`);
-					await uploadBytes(storageRef, file);
-					const url = await getDownloadURL(storageRef);
-					return url;
-				});
-				const urls = await Promise.all(uploadPromises);
-				referenceImageUrls.push(...urls);
-			}
+			const uploadedRefs: ReturnType<typeof ref>[] = []; // Track uploaded files for cleanup on failure
 
-			await createAppointment(
-				{
-					artistId: finalArtistId!,
-					artistName: finalArtistName,
-					clientId: user?.uid || `guest_${crypto.randomUUID()}`, // Generate unique guest ID
-					clientName: data.name,
-					type: selectedService.label,
-					startTime: startDateTime,
-					endTime: endDateTime,
-					status: "pending", // Default to pending
-					imageUrl:
-						"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop", // Placeholder
-					referenceImageUrls,
-				},
-				appointmentId,
-			);
+			try {
+				if (data.referenceImages && data.referenceImages.length > 0) {
+					const uploadPromises = Array.from(data.referenceImages).map(async (file) => {
+						const storageRef = ref(storage, `appointments/${appointmentId}/reference-images/${file.name}`);
+						await uploadBytes(storageRef, file);
+						uploadedRefs.push(storageRef); // Track for potential cleanup
+						const url = await getDownloadURL(storageRef);
+						return url;
+					});
+					const urls = await Promise.all(uploadPromises);
+					referenceImageUrls.push(...urls);
+				}
+
+				await createAppointment(
+					{
+						artistId: finalArtistId!,
+						artistName: finalArtistName,
+						clientId: user?.uid || `guest_${crypto.randomUUID()}`, // Generate unique guest ID
+						clientName: data.name,
+						type: selectedService.label,
+						startTime: startDateTime,
+						endTime: endDateTime,
+						status: "pending", // Default to pending
+						imageUrl:
+							"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop", // Placeholder
+						referenceImageUrls,
+					},
+					appointmentId,
+				);
+			} catch (uploadError) {
+				// Clean up any uploaded images if appointment creation fails
+				if (uploadedRefs.length > 0) {
+					await Promise.allSettled(uploadedRefs.map((storageRef) => deleteObject(storageRef)));
+				}
+				throw uploadError;
+			}
 
 			toast.success("Appointment request sent!");
 			navigate("/"); // Redirect to home or success page
