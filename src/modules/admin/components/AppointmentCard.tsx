@@ -1,19 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { useUpdateAppointmentStatus, type UpcomingAppointment } from "@/features/appointments";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface AppointmentCardProps {
 	appointment: UpcomingAppointment;
 }
 
+type PendingAction = "approve" | "decline" | "cancel" | null;
+
 export function AppointmentCard({ appointment }: AppointmentCardProps) {
 	const { mutate: updateStatus, isPending: isUpdating } = useUpdateAppointmentStatus();
+	const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+
+	const handleUpdateStatus = (action: PendingAction, status: "upcoming" | "cancelled", successMessage: string) => {
+		setPendingAction(action);
+		updateStatus(
+			{ appointmentId: appointment.id, status, successMessage },
+			{ onSettled: () => setPendingAction(null) },
+		);
+	};
 
 	return (
 		<article
 			className={cn(
 				"rounded-4xl border bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]",
 				appointment.status === "pending" ? "border-yellow-500/50" : "border-white/10",
+				isUpdating && "opacity-75",
 			)}
 		>
 			<div className="w-full overflow-hidden rounded-t-4xl">
@@ -44,30 +58,20 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 							<Button
 								className="rounded-full border border-transparent bg-green-600 px-6 py-5 text-sm font-medium text-white transition hover:bg-green-700"
 								type="button"
-								onClick={() =>
-									updateStatus({
-										appointmentId: appointment.id,
-										status: "upcoming",
-										successMessage: "Appointment approved",
-									})
-								}
+								onClick={() => handleUpdateStatus("approve", "upcoming", "Appointment approved")}
 								disabled={isUpdating}
 							>
+								{pendingAction === "approve" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 								Approve
 							</Button>
 							<Button
 								className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
 								type="button"
 								variant="outline"
-								onClick={() =>
-									updateStatus({
-										appointmentId: appointment.id,
-										status: "cancelled",
-										successMessage: "Appointment declined",
-									})
-								}
+								onClick={() => handleUpdateStatus("decline", "cancelled", "Appointment declined")}
 								disabled={isUpdating}
 							>
+								{pendingAction === "decline" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 								Decline
 							</Button>
 						</>
@@ -83,15 +87,10 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 								className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
 								type="button"
 								variant="outline"
-								onClick={() =>
-									updateStatus({
-										appointmentId: appointment.id,
-										status: "cancelled",
-										successMessage: "Appointment cancelled",
-									})
-								}
+								onClick={() => handleUpdateStatus("cancel", "cancelled", "Appointment cancelled")}
 								disabled={isUpdating}
 							>
+								{pendingAction === "cancel" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 								Cancel
 							</Button>
 						</>
