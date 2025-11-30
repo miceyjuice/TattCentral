@@ -6,6 +6,9 @@ export type AppointmentDocument = {
 	clientId: string;
 	artistName: string;
 	clientName: string;
+	clientEmail: string;
+	clientPhone: string;
+	description?: string;
 	type: string;
 	startTime: Timestamp;
 	endTime: Timestamp;
@@ -37,4 +40,22 @@ export type PastAppointment = {
 export type AppointmentsResponse = {
 	upcoming: UpcomingAppointment[];
 	past: PastAppointment[];
+};
+
+/**
+ * Full appointment details for the detail sheet/view.
+ * Contains all fields needed to display complete appointment information.
+ */
+export type AppointmentDetail = {
+	id: string;
+	clientName: string;
+	clientEmail: string;
+	clientPhone: string;
+	description?: string;
+	type: string;
+	status: "upcoming" | "completed" | "cancelled" | "pending";
+	artistName: string;
+	startTime: Date;
+	endTime: Date;
+	referenceImageUrls?: string[];
 };
