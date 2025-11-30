@@ -19,6 +19,9 @@ import { toast } from "sonner";
 import { addMinutes, setHours, setMinutes } from "date-fns";
 import { Navigation } from "@/components/Navigation";
 
+import { storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 export const BookingRoute = () => {
 	const navigate = useNavigate();
 	const { user } = useAuth();
@@ -135,6 +138,18 @@ export const BookingRoute = () => {
 				finalArtistName = `${assigned.firstName} ${assigned.lastName}`;
 			}
 
+			const referenceImageUrls: string[] = [];
+			if (data.referenceImages && data.referenceImages.length > 0) {
+				const uploadPromises = Array.from(data.referenceImages).map(async (file) => {
+					const storageRef = ref(storage, `reference-images/${Date.now()}_${file.name}`);
+					await uploadBytes(storageRef, file);
+					const url = await getDownloadURL(storageRef);
+					return url;
+				});
+				const urls = await Promise.all(uploadPromises);
+				referenceImageUrls.push(...urls);
+			}
+
 			await createAppointment({
 				artistId: finalArtistId!,
 				artistName: finalArtistName,
@@ -146,6 +161,7 @@ export const BookingRoute = () => {
 				status: "pending", // Default to pending
 				imageUrl:
 					"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop", // Placeholder
+				referenceImageUrls,
 			});
 
 			toast.success("Appointment request sent!");
@@ -161,7 +177,7 @@ export const BookingRoute = () => {
 	return (
 		<>
 			<Navigation showBookNow={false} />
-			<main className="mx-auto mt-24 flex w-full max-w-[1440px] flex-col gap-10 px-6 lg:px-10">
+			<main className="mx-auto mt-20 mb-20 flex w-full max-w-[1440px] flex-col gap-10 px-6 lg:px-10">
 				<div className="flex w-full flex-col gap-8 lg:flex-row lg:gap-12">
 					{/* Left Column: Main Content */}
 					<div className="flex-1">
