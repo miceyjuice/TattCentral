@@ -65,5 +65,14 @@ export const getAppointments = async (userId?: string, role?: UserRole): Promise
 		}
 	});
 
+	// Sort upcoming appointments: pending first, then by start time
+	upcoming.sort((a, b) => {
+		// Pending appointments come first
+		if (a.status === "pending" && b.status !== "pending") return -1;
+		if (a.status !== "pending" && b.status === "pending") return 1;
+		// Then sort by date (would need to store raw date for proper sorting)
+		return 0;
+	});
+
 	return { upcoming, past };
 };

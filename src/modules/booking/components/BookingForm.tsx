@@ -1,11 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Dropzone } from "@/components/ui/dropzone";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import parsePhoneNumber from "libphonenumber-js";
 import { useForm } from "react-hook-form";
 import z from "zod";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const zPhoneNumber = z.string().transform((value, ctx) => {
 	const phoneNumber = parsePhoneNumber(value, {
@@ -38,6 +42,15 @@ const createFormSchema = (isConsultation: boolean) =>
 			: z.string().min(10, {
 					message: "Tattoo description must be at least 10 characters.",
 				}),
+		referenceImages: z
+			.array(z.instanceof(File))
+			.optional()
+			.refine((files) => !files || files.length <= 3, "Max 3 images allowed.")
+			.refine((files) => !files || files.every((file) => file.size <= MAX_FILE_SIZE), `Max file size is 5MB.`)
+			.refine(
+				(files) => !files || files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)),
+				"Only .jpg, .jpeg, .png and .webp formats are supported.",
+			),
 	});
 
 export type BookingFormData = {
@@ -45,6 +58,7 @@ export type BookingFormData = {
 	email: string;
 	phone: string;
 	tattooDescription?: string;
+	referenceImages?: File[];
 };
 
 interface BookingFormProps {
@@ -62,6 +76,7 @@ export const BookingForm = ({ onSubmit, isSubmitting = false, isConsultation = f
 			email: "",
 			phone: "",
 			tattooDescription: "",
+			referenceImages: [],
 		},
 	});
 
@@ -136,6 +151,30 @@ export const BookingForm = ({ onSubmit, isSubmitting = false, isConsultation = f
 						</FormItem>
 					)}
 				/>
+				{!isConsultation && (
+					<FormField
+						control={form.control}
+						name="referenceImages"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className="text-soft-white">Reference Images (Optional)</FormLabel>
+								<FormControl>
+									<Dropzone
+										value={field.value}
+										onChange={field.onChange}
+										maxFiles={3}
+										maxSize={MAX_FILE_SIZE}
+										accept={ACCEPTED_IMAGE_TYPES}
+									/>
+								</FormControl>
+								<FormDescription className="text-gray-400">
+									Upload up to 3 images (max 5MB each).
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				)}
 				<Button
 					type="submit"
 					disabled={isSubmitting}

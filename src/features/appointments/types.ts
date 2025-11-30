@@ -11,6 +11,8 @@ export type AppointmentDocument = {
 	endTime: Timestamp;
 	status: "upcoming" | "completed" | "cancelled" | "pending";
 	imageUrl: string;
+	referenceImageUrls?: string[];
+	referenceImagePaths?: string[]; // Storage paths for deletion
 	rating?: number;
 };
 

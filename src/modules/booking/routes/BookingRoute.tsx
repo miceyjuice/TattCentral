@@ -12,12 +12,15 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAvailability } from "../hooks/useAvailability";
 import { useArtists } from "../hooks/useArtists";
-import { createAppointment } from "@/features/appointments/api/createAppointment";
+import { createAppointment, generateAppointmentId } from "@/features/appointments/api/createAppointment";
 import { assignArtist } from "../utils/assignArtist";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { addMinutes, setHours, setMinutes } from "date-fns";
 import { Navigation } from "@/components/Navigation";
+
+import { storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
 export const BookingRoute = () => {
 	const navigate = useNavigate();
@@ -135,18 +138,53 @@ export const BookingRoute = () => {
 				finalArtistName = `${assigned.firstName} ${assigned.lastName}`;
 			}
 
-			await createAppointment({
-				artistId: finalArtistId!,
-				artistName: finalArtistName,
-				clientId: user?.uid || `guest_${crypto.randomUUID()}`, // Generate unique guest ID
-				clientName: data.name,
-				type: selectedService.label,
-				startTime: startDateTime,
-				endTime: endDateTime,
-				status: "pending", // Default to pending
-				imageUrl:
-					"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop", // Placeholder
-			});
+			// Generate appointment ID first so we can organize uploads
+			const appointmentId = generateAppointmentId();
+
+			const referenceImageUrls: string[] = [];
+			const referenceImagePaths: string[] = []; // Storage paths for deletion
+			const uploadedRefs: ReturnType<typeof ref>[] = []; // Track uploaded files for cleanup on failure
+
+			try {
+				if (data.referenceImages && data.referenceImages.length > 0) {
+					const uploadPromises = Array.from(data.referenceImages).map(async (file) => {
+						const uniqueId = crypto.randomUUID().slice(0, 8);
+						const storagePath = `appointments/${appointmentId}/reference-images/${uniqueId}-${file.name}`;
+						const storageRef = ref(storage, storagePath);
+						await uploadBytes(storageRef, file);
+						uploadedRefs.push(storageRef); // Track for potential cleanup
+						const url = await getDownloadURL(storageRef);
+						return { url, path: storagePath };
+					});
+					const results = await Promise.all(uploadPromises);
+					referenceImageUrls.push(...results.map((r) => r.url));
+					referenceImagePaths.push(...results.map((r) => r.path));
+				}
+
+				await createAppointment(
+					{
+						artistId: finalArtistId!,
+						artistName: finalArtistName,
+						clientId: user?.uid || `guest_${crypto.randomUUID()}`, // Generate unique guest ID
+						clientName: data.name,
+						type: selectedService.label,
+						startTime: startDateTime,
+						endTime: endDateTime,
+						status: "pending", // Default to pending
+						imageUrl:
+							"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop", // Placeholder
+						referenceImageUrls,
+						referenceImagePaths,
+					},
+					appointmentId,
+				);
+			} catch (uploadError) {
+				// Clean up any uploaded images if appointment creation fails
+				if (uploadedRefs.length > 0) {
+					await Promise.allSettled(uploadedRefs.map((storageRef) => deleteObject(storageRef)));
+				}
+				throw uploadError;
+			}
 
 			toast.success("Appointment request sent!");
 			navigate("/"); // Redirect to home or success page
@@ -161,7 +199,7 @@ export const BookingRoute = () => {
 	return (
 		<>
 			<Navigation showBookNow={false} />
-			<main className="mx-auto mt-24 flex w-full max-w-[1440px] flex-col gap-10 px-6 lg:px-10">
+			<main className="mx-auto mt-20 mb-20 flex w-full max-w-[1440px] flex-col gap-10 px-6 lg:px-10">
 				<div className="flex w-full flex-col gap-8 lg:flex-row lg:gap-12">
 					{/* Left Column: Main Content */}
 					<div className="flex-1">
