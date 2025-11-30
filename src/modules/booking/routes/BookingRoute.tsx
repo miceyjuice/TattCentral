@@ -147,7 +147,11 @@ export const BookingRoute = () => {
 			try {
 				if (data.referenceImages && data.referenceImages.length > 0) {
 					const uploadPromises = Array.from(data.referenceImages).map(async (file) => {
-						const storageRef = ref(storage, `appointments/${appointmentId}/reference-images/${file.name}`);
+						const uniqueId = crypto.randomUUID().slice(0, 8);
+						const storageRef = ref(
+							storage,
+							`appointments/${appointmentId}/reference-images/${uniqueId}-${file.name}`,
+						);
 						await uploadBytes(storageRef, file);
 						uploadedRefs.push(storageRef); // Track for potential cleanup
 						const url = await getDownloadURL(storageRef);
