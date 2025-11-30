@@ -142,23 +142,23 @@ export const BookingRoute = () => {
 			const appointmentId = generateAppointmentId();
 
 			const referenceImageUrls: string[] = [];
+			const referenceImagePaths: string[] = []; // Storage paths for deletion
 			const uploadedRefs: ReturnType<typeof ref>[] = []; // Track uploaded files for cleanup on failure
 
 			try {
 				if (data.referenceImages && data.referenceImages.length > 0) {
 					const uploadPromises = Array.from(data.referenceImages).map(async (file) => {
 						const uniqueId = crypto.randomUUID().slice(0, 8);
-						const storageRef = ref(
-							storage,
-							`appointments/${appointmentId}/reference-images/${uniqueId}-${file.name}`,
-						);
+						const storagePath = `appointments/${appointmentId}/reference-images/${uniqueId}-${file.name}`;
+						const storageRef = ref(storage, storagePath);
 						await uploadBytes(storageRef, file);
 						uploadedRefs.push(storageRef); // Track for potential cleanup
 						const url = await getDownloadURL(storageRef);
-						return url;
+						return { url, path: storagePath };
 					});
-					const urls = await Promise.all(uploadPromises);
-					referenceImageUrls.push(...urls);
+					const results = await Promise.all(uploadPromises);
+					referenceImageUrls.push(...results.map((r) => r.url));
+					referenceImagePaths.push(...results.map((r) => r.path));
 				}
 
 				await createAppointment(
@@ -174,6 +174,7 @@ export const BookingRoute = () => {
 						imageUrl:
 							"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop", // Placeholder
 						referenceImageUrls,
+						referenceImagePaths,
 					},
 					appointmentId,
 				);

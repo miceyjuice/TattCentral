@@ -55,13 +55,20 @@ describe("useUpdateAppointmentStatus", () => {
 		vi.clearAllMocks();
 	});
 
-	it("deletes reference images when cancelling a pending appointment", async () => {
-		const referenceImageUrls = ["https://storage.example.com/image1.jpg", "https://storage.example.com/image2.jpg"];
+	it("deletes reference images using storage paths when cancelling a pending appointment", async () => {
+		const referenceImagePaths = [
+			"appointments/123/reference-images/abc-image1.jpg",
+			"appointments/123/reference-images/def-image2.jpg",
+		];
 
 		mockGetDoc.mockResolvedValue({
 			data: () => ({
 				status: "pending",
-				referenceImageUrls,
+				referenceImageUrls: [
+					"https://storage.example.com/image1.jpg",
+					"https://storage.example.com/image2.jpg",
+				],
+				referenceImagePaths,
 			}),
 		});
 		mockUpdateDoc.mockResolvedValue(undefined);
@@ -80,26 +87,26 @@ describe("useUpdateAppointmentStatus", () => {
 			expect(result.current.isSuccess).toBe(true);
 		});
 
-		// Verify images were deleted
+		// Verify images were deleted using storage paths (not URLs)
 		expect(mockDeleteObject).toHaveBeenCalledTimes(2);
 
-		// Verify status was updated and referenceImageUrls was removed
+		// Verify status was updated and both referenceImageUrls and referenceImagePaths were removed
 		expect(mockUpdateDoc).toHaveBeenCalledWith(
 			expect.anything(),
 			expect.objectContaining({
 				status: "cancelled",
 				referenceImageUrls: "DELETE_FIELD_SENTINEL",
+				referenceImagePaths: "DELETE_FIELD_SENTINEL",
 			}),
 		);
 	});
 
 	it("does NOT delete reference images when cancelling a non-pending appointment", async () => {
-		const referenceImageUrls = ["https://storage.example.com/image1.jpg"];
-
 		mockGetDoc.mockResolvedValue({
 			data: () => ({
 				status: "upcoming", // Not pending
-				referenceImageUrls,
+				referenceImageUrls: ["https://storage.example.com/image1.jpg"],
+				referenceImagePaths: ["appointments/123/reference-images/abc-image1.jpg"],
 			}),
 		});
 		mockUpdateDoc.mockResolvedValue(undefined);
@@ -120,17 +127,18 @@ describe("useUpdateAppointmentStatus", () => {
 		// Verify images were NOT deleted
 		expect(mockDeleteObject).not.toHaveBeenCalled();
 
-		// Verify only status was updated (no deleteField for referenceImageUrls)
+		// Verify only status was updated (no deleteField for reference images)
 		expect(mockUpdateDoc).toHaveBeenCalledWith(expect.anything(), { status: "cancelled" });
 	});
 
 	it("still updates appointment status even if image deletion fails", async () => {
-		const referenceImageUrls = ["https://storage.example.com/image1.jpg"];
+		const referenceImagePaths = ["appointments/123/reference-images/abc-image1.jpg"];
 
 		mockGetDoc.mockResolvedValue({
 			data: () => ({
 				status: "pending",
-				referenceImageUrls,
+				referenceImageUrls: ["https://storage.example.com/image1.jpg"],
+				referenceImagePaths,
 			}),
 		});
 		mockDeleteObject.mockRejectedValue(new Error("Storage error"));
@@ -166,17 +174,19 @@ describe("useUpdateAppointmentStatus", () => {
 			expect.objectContaining({
 				status: "cancelled",
 				referenceImageUrls: "DELETE_FIELD_SENTINEL",
+				referenceImagePaths: "DELETE_FIELD_SENTINEL",
 			}),
 		);
 
 		consoleErrorSpy.mockRestore();
 	});
 
-	it("removes referenceImageUrls field from document when cancelling pending appointment", async () => {
+	it("removes both referenceImageUrls and referenceImagePaths fields when cancelling pending appointment", async () => {
 		mockGetDoc.mockResolvedValue({
 			data: () => ({
 				status: "pending",
 				referenceImageUrls: ["https://storage.example.com/image1.jpg"],
+				referenceImagePaths: ["appointments/123/reference-images/abc-image1.jpg"],
 			}),
 		});
 		mockUpdateDoc.mockResolvedValue(undefined);
@@ -195,12 +205,13 @@ describe("useUpdateAppointmentStatus", () => {
 			expect(result.current.isSuccess).toBe(true);
 		});
 
-		// Verify deleteField was called and used in updateDoc
+		// Verify deleteField was called for both fields
 		expect(mockDeleteField).toHaveBeenCalled();
 		expect(mockUpdateDoc).toHaveBeenCalledWith(
 			expect.anything(),
 			expect.objectContaining({
 				referenceImageUrls: "DELETE_FIELD_SENTINEL",
+				referenceImagePaths: "DELETE_FIELD_SENTINEL",
 			}),
 		);
 	});
@@ -210,6 +221,7 @@ describe("useUpdateAppointmentStatus", () => {
 			data: () => ({
 				status: "pending",
 				referenceImageUrls: ["https://storage.example.com/image1.jpg"],
+				referenceImagePaths: ["appointments/123/reference-images/abc-image1.jpg"],
 			}),
 		});
 		mockUpdateDoc.mockResolvedValue(undefined);
@@ -230,17 +242,21 @@ describe("useUpdateAppointmentStatus", () => {
 		// Verify images were NOT deleted when approving
 		expect(mockDeleteObject).not.toHaveBeenCalled();
 
-		// Verify only status was updated (referenceImageUrls preserved by Firestore's updateDoc behavior)
+		// Verify only status was updated (reference images preserved)
 		expect(mockUpdateDoc).toHaveBeenCalledWith(expect.anything(), { status: "upcoming" });
 	});
 
-	it("preserves referenceImageUrls when approving a pending appointment", async () => {
+	it("preserves referenceImageUrls and referenceImagePaths when approving a pending appointment", async () => {
 		mockGetDoc.mockResolvedValue({
 			data: () => ({
 				status: "pending",
 				referenceImageUrls: [
 					"https://storage.example.com/image1.jpg",
 					"https://storage.example.com/image2.jpg",
+				],
+				referenceImagePaths: [
+					"appointments/123/reference-images/abc-image1.jpg",
+					"appointments/123/reference-images/def-image2.jpg",
 				],
 			}),
 		});
@@ -259,13 +275,47 @@ describe("useUpdateAppointmentStatus", () => {
 			expect(result.current.isSuccess).toBe(true);
 		});
 
-		// Verify deleteField was NOT called - referenceImageUrls should be preserved
+		// Verify deleteField was NOT called - reference images should be preserved
 		expect(mockDeleteField).not.toHaveBeenCalled();
 
-		// Verify updateDoc was called with ONLY status, not touching referenceImageUrls
-		// This ensures Firestore's partial update behavior preserves the field
+		// Verify updateDoc was called with ONLY status, not touching reference image fields
 		const updateDocCall = mockUpdateDoc.mock.calls[0][1];
 		expect(updateDocCall).toEqual({ status: "upcoming" });
 		expect(updateDocCall).not.toHaveProperty("referenceImageUrls");
+		expect(updateDocCall).not.toHaveProperty("referenceImagePaths");
+	});
+
+	it("handles appointments without reference images gracefully", async () => {
+		mockGetDoc.mockResolvedValue({
+			data: () => ({
+				status: "pending",
+				// No referenceImageUrls or referenceImagePaths
+			}),
+		});
+		mockUpdateDoc.mockResolvedValue(undefined);
+
+		const { result } = renderHook(() => useUpdateAppointmentStatus(), {
+			wrapper: createWrapper(),
+		});
+
+		result.current.mutate({
+			appointmentId: "test-appointment-id",
+			status: "cancelled",
+		});
+
+		await waitFor(() => {
+			expect(result.current.isSuccess).toBe(true);
+		});
+
+		// Verify no deletion was attempted
+		expect(mockDeleteObject).not.toHaveBeenCalled();
+
+		// Verify status was updated and fields were still marked for deletion (harmless for non-existent fields)
+		expect(mockUpdateDoc).toHaveBeenCalledWith(
+			expect.anything(),
+			expect.objectContaining({
+				status: "cancelled",
+			}),
+		);
 	});
 });

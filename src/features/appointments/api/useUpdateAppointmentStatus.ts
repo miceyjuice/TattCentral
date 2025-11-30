@@ -11,20 +11,20 @@ type UpdateStatusParams = {
 };
 
 /**
- * Deletes reference images from Firebase Storage.
+ * Deletes reference images from Firebase Storage using storage paths.
  * Images are only deleted when declining/cancelling a pending appointment.
  */
-async function deleteReferenceImages(referenceImageUrls: string[]) {
-	if (!referenceImageUrls || referenceImageUrls.length === 0) return;
+async function deleteReferenceImages(storagePaths: string[]) {
+	if (!storagePaths || storagePaths.length === 0) return;
 
 	await Promise.all(
-		referenceImageUrls.map(async (url) => {
+		storagePaths.map(async (path) => {
 			try {
-				const imageRef = ref(storage, url);
+				const imageRef = ref(storage, path);
 				await deleteObject(imageRef);
 			} catch (error) {
 				// Log but don't throw - we still want to cancel the appointment even if image deletion fails
-				console.error(`Failed to delete image: ${url}`, error);
+				console.error(`Failed to delete image: ${path}`, error);
 			}
 		}),
 	);
@@ -41,16 +41,18 @@ export const useUpdateAppointmentStatus = () => {
 
 			// If cancelling a pending appointment, delete reference images from storage
 			if (status === "cancelled" && appointmentData?.status === "pending") {
-				const referenceImageUrls = appointmentData?.referenceImageUrls as string[] | undefined;
+				// Use storage paths for deletion (not download URLs)
+				const referenceImagePaths = appointmentData?.referenceImagePaths as string[] | undefined;
 
-				if (referenceImageUrls && referenceImageUrls.length > 0) {
-					await deleteReferenceImages(referenceImageUrls);
+				if (referenceImagePaths && referenceImagePaths.length > 0) {
+					await deleteReferenceImages(referenceImagePaths);
 				}
 
-				// Update status and remove referenceImageUrls field
+				// Update status and remove reference image fields
 				await updateDoc(appointmentRef, {
 					status,
 					referenceImageUrls: deleteField(),
+					referenceImagePaths: deleteField(),
 				});
 			} else {
 				// When approving (or cancelling non-pending), only update status.
