@@ -230,7 +230,42 @@ describe("useUpdateAppointmentStatus", () => {
 		// Verify images were NOT deleted when approving
 		expect(mockDeleteObject).not.toHaveBeenCalled();
 
-		// Verify only status was updated
+		// Verify only status was updated (referenceImageUrls preserved by Firestore's updateDoc behavior)
 		expect(mockUpdateDoc).toHaveBeenCalledWith(expect.anything(), { status: "upcoming" });
+	});
+
+	it("preserves referenceImageUrls when approving a pending appointment", async () => {
+		mockGetDoc.mockResolvedValue({
+			data: () => ({
+				status: "pending",
+				referenceImageUrls: [
+					"https://storage.example.com/image1.jpg",
+					"https://storage.example.com/image2.jpg",
+				],
+			}),
+		});
+		mockUpdateDoc.mockResolvedValue(undefined);
+
+		const { result } = renderHook(() => useUpdateAppointmentStatus(), {
+			wrapper: createWrapper(),
+		});
+
+		result.current.mutate({
+			appointmentId: "test-appointment-id",
+			status: "upcoming",
+		});
+
+		await waitFor(() => {
+			expect(result.current.isSuccess).toBe(true);
+		});
+
+		// Verify deleteField was NOT called - referenceImageUrls should be preserved
+		expect(mockDeleteField).not.toHaveBeenCalled();
+
+		// Verify updateDoc was called with ONLY status, not touching referenceImageUrls
+		// This ensures Firestore's partial update behavior preserves the field
+		const updateDocCall = mockUpdateDoc.mock.calls[0][1];
+		expect(updateDocCall).toEqual({ status: "upcoming" });
+		expect(updateDocCall).not.toHaveProperty("referenceImageUrls");
 	});
 });

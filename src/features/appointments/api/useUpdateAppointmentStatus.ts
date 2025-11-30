@@ -53,6 +53,8 @@ export const useUpdateAppointmentStatus = () => {
 					referenceImageUrls: deleteField(),
 				});
 			} else {
+				// When approving (or cancelling non-pending), only update status.
+				// referenceImageUrls is preserved since updateDoc only modifies specified fields.
 				await updateDoc(appointmentRef, { status });
 			}
 		},
