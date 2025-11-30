@@ -1,14 +1,24 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAppointments, type UpcomingAppointment, type PastAppointment } from "@/features/appointments";
 import AdminHeader from "@/modules/admin/components/AdminHeader";
 import PastAppointmentsTable from "@/modules/admin/components/PastAppointmentsTable";
 import { AppointmentCard } from "@/modules/admin/components/AppointmentCard";
+import { AppointmentDetailSheet } from "@/modules/admin/components/AppointmentDetailSheet";
 
 const AdminDashboard = () => {
 	const { data, isLoading, isError, error, refetch } = useAppointments();
 	const upcomingAppointments: UpcomingAppointment[] = data?.upcoming ?? [];
 	const pastAppointments: PastAppointment[] = data?.past ?? [];
+
+	const [selectedAppointment, setSelectedAppointment] = useState<UpcomingAppointment | null>(null);
+	const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+	const handleOpenDetail = (appointment: UpcomingAppointment) => {
+		setSelectedAppointment(appointment);
+		setIsSheetOpen(true);
+	};
 
 	return (
 		<>
@@ -21,7 +31,11 @@ const AdminDashboard = () => {
 				) : upcomingAppointments.length ? (
 					<section className="grid [grid-template-columns:repeat(3,1fr)] gap-6">
 						{upcomingAppointments.map((appointment) => (
-							<AppointmentCard key={appointment.id} appointment={appointment} />
+							<AppointmentCard
+								key={appointment.id}
+								appointment={appointment}
+								onViewDetails={() => handleOpenDetail(appointment)}
+							/>
 						))}
 					</section>
 				) : (
@@ -41,6 +55,12 @@ const AdminDashboard = () => {
 					/>
 				</div>
 			</div>
+
+			<AppointmentDetailSheet
+				appointment={selectedAppointment}
+				open={isSheetOpen}
+				onOpenChange={setIsSheetOpen}
+			/>
 		</>
 	);
 };
