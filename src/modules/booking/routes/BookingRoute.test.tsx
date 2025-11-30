@@ -22,6 +22,17 @@ vi.mock("sonner", () => ({
 	},
 }));
 
+vi.mock("firebase/storage", () => ({
+	getStorage: vi.fn(),
+	ref: vi.fn(),
+	uploadBytes: vi.fn(),
+	getDownloadURL: vi.fn().mockResolvedValue("https://example.com/image.jpg"),
+}));
+
+vi.mock("@/lib/firebase", () => ({
+	storage: {},
+}));
+
 // Mock data
 const mockArtists = [
 	{ id: "1", firstName: "John", lastName: "Doe", email: "john@example.com", role: "artist" as UserRole },
@@ -172,6 +183,41 @@ describe("BookingRoute", () => {
 			expect(createAppointmentApi.createAppointment).toHaveBeenCalledWith(
 				expect.objectContaining({
 					artistId: "1", // Assigned artist ID
+				}),
+			);
+		});
+	});
+
+	it("uploads reference images correctly", async () => {
+		renderComponent();
+
+		// Navigate to final step
+		fireEvent.click(screen.getByText("Small Tattoo"));
+		fireEvent.click(screen.getByText("Next"));
+		fireEvent.click(screen.getByText("John Doe"));
+		fireEvent.click(screen.getByText("Next"));
+		fireEvent.click(screen.getByText("10:00"));
+		fireEvent.click(screen.getByText("Next"));
+
+		// Fill form
+		fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: "Test User" } });
+		fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "test@example.com" } });
+		fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "500 123 456" } });
+		fireEvent.change(screen.getByLabelText(/Tattoo description/i), { target: { value: "A cool dragon tattoo" } });
+
+		// Upload file
+		const file = new File(["(⌐□_□)"], "chucknorris.png", { type: "image/png" });
+		const input = screen.getByLabelText(/Reference Images/i);
+
+		fireEvent.change(input, { target: { files: [file] } });
+
+		// Submit
+		fireEvent.click(screen.getByText("Submit"));
+
+		await waitFor(() => {
+			expect(createAppointmentApi.createAppointment).toHaveBeenCalledWith(
+				expect.objectContaining({
+					referenceImageUrls: ["https://example.com/image.jpg"],
 				}),
 			);
 		});
