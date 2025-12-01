@@ -372,9 +372,9 @@ describe("AppointmentDetailSheet", () => {
 			<AppointmentDetailSheet appointment={mockPendingAppointment} open={true} onOpenChange={mockOnOpenChange} />,
 		);
 
-		// Check for the Loader2 spinner (it has animate-spin class)
-		const spinner = document.querySelector(".animate-spin");
-		expect(spinner).toBeInTheDocument();
+		// Check for the loading indicator using accessible role
+		const loadingIndicator = screen.getByRole("status", { name: /loading appointment details/i });
+		expect(loadingIndicator).toBeInTheDocument();
 	});
 
 	it("shows 'Appointment not found' when data is null after loading", () => {

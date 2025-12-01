@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { BookingRoute } from "../routes/BookingRoute";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
@@ -96,30 +97,32 @@ describe("BookingRoute", () => {
 	});
 
 	it("navigates through the steps correctly", async () => {
+		const user = userEvent.setup();
 		renderComponent();
 
 		// Step 1: Select Service
-		fireEvent.click(screen.getByText("Small Tattoo"));
+		await user.click(screen.getByText("Small Tattoo"));
 		const nextButton = screen.getByText("Next");
 		expect(nextButton).toBeEnabled();
-		fireEvent.click(nextButton);
+		await user.click(nextButton);
 
 		// Step 2: Select Artist
 		expect(screen.getByText("Select artist")).toBeInTheDocument();
-		fireEvent.click(screen.getByText("John Doe"));
-		fireEvent.click(screen.getByText("Next"));
+		await user.click(screen.getByText("John Doe"));
+		await user.click(screen.getByText("Next"));
 
 		// Step 3: Select Date & Time
 		expect(screen.getByText("Select date & time")).toBeInTheDocument();
 		// Date is pre-selected to today in the component
-		fireEvent.click(screen.getByText("10:00"));
-		fireEvent.click(screen.getByText("Next"));
+		await user.click(screen.getByText("10:00"));
+		await user.click(screen.getByText("Next"));
 
 		// Step 4: Details
 		expect(screen.getByText("Your details")).toBeInTheDocument();
 	});
 
-	it("validates steps before allowing navigation", () => {
+	it("validates steps before allowing navigation", async () => {
+		const user = userEvent.setup();
 		renderComponent();
 
 		// Step 1: Service (Initially disabled)
@@ -127,36 +130,37 @@ describe("BookingRoute", () => {
 		expect(nextButton).toBeDisabled();
 
 		// Select service -> Enabled
-		fireEvent.click(screen.getByText("Small Tattoo"));
+		await user.click(screen.getByText("Small Tattoo"));
 		expect(nextButton).toBeEnabled();
-		fireEvent.click(nextButton);
+		await user.click(nextButton);
 
 		// Step 2: Artist (Initially disabled)
 		expect(screen.getByText("Next")).toBeDisabled();
-		fireEvent.click(screen.getByText("Any Artist"));
+		await user.click(screen.getByText("Any Artist"));
 		expect(screen.getByText("Next")).toBeEnabled();
 	});
 
 	it("submits the form successfully", async () => {
+		const user = userEvent.setup();
 		renderComponent();
 
 		// Navigate to final step
-		fireEvent.click(screen.getByText("Small Tattoo"));
-		fireEvent.click(screen.getByText("Next"));
-		fireEvent.click(screen.getByText("John Doe"));
-		fireEvent.click(screen.getByText("Next"));
-		fireEvent.click(screen.getByText("10:00"));
-		fireEvent.click(screen.getByText("Next"));
+		await user.click(screen.getByText("Small Tattoo"));
+		await user.click(screen.getByText("Next"));
+		await user.click(screen.getByText("John Doe"));
+		await user.click(screen.getByText("Next"));
+		await user.click(screen.getByText("10:00"));
+		await user.click(screen.getByText("Next"));
 
-		// Fill form
-		fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: "Test User" } });
-		fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "test@example.com" } });
-		fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "500 123 456" } }); // Valid PL number
-		fireEvent.change(screen.getByLabelText(/Tattoo description/i), { target: { value: "A cool dragon tattoo" } });
+		// Fill form using userEvent for more realistic behavior
+		await user.type(screen.getByLabelText(/Name/i), "Test User");
+		await user.type(screen.getByLabelText(/Email/i), "test@example.com");
+		await user.type(screen.getByLabelText(/Phone/i), "500 123 456"); // Valid PL number
+		await user.type(screen.getByLabelText(/Tattoo description/i), "A cool dragon tattoo");
 
 		// Submit
 		const submitButton = screen.getByText("Submit");
-		fireEvent.click(submitButton);
+		await user.click(submitButton);
 
 		await waitFor(() => {
 			expect(createAppointmentApi.createAppointment).toHaveBeenCalledWith(
@@ -171,23 +175,24 @@ describe("BookingRoute", () => {
 	});
 
 	it("handles 'Any Artist' selection correctly", async () => {
+		const user = userEvent.setup();
 		renderComponent();
 
 		// Navigate to final step with "Any Artist"
-		fireEvent.click(screen.getByText("Small Tattoo"));
-		fireEvent.click(screen.getByText("Next"));
-		fireEvent.click(screen.getByText("Any Artist"));
-		fireEvent.click(screen.getByText("Next"));
-		fireEvent.click(screen.getByText("10:00"));
-		fireEvent.click(screen.getByText("Next"));
+		await user.click(screen.getByText("Small Tattoo"));
+		await user.click(screen.getByText("Next"));
+		await user.click(screen.getByText("Any Artist"));
+		await user.click(screen.getByText("Next"));
+		await user.click(screen.getByText("10:00"));
+		await user.click(screen.getByText("Next"));
 
 		// Fill form
-		fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: "Test User" } });
-		fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "test@example.com" } });
-		fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "500 123 456" } });
-		fireEvent.change(screen.getByLabelText(/Tattoo description/i), { target: { value: "A cool dragon tattoo" } });
+		await user.type(screen.getByLabelText(/Name/i), "Test User");
+		await user.type(screen.getByLabelText(/Email/i), "test@example.com");
+		await user.type(screen.getByLabelText(/Phone/i), "500 123 456");
+		await user.type(screen.getByLabelText(/Tattoo description/i), "A cool dragon tattoo");
 
-		fireEvent.click(screen.getByText("Submit"));
+		await user.click(screen.getByText("Submit"));
 
 		await waitFor(() => {
 			expect(assignArtistUtils.assignArtist).toHaveBeenCalled();
@@ -201,30 +206,30 @@ describe("BookingRoute", () => {
 	});
 
 	it("uploads reference images correctly", async () => {
+		const user = userEvent.setup();
 		renderComponent();
 
 		// Navigate to final step
-		fireEvent.click(screen.getByText("Small Tattoo"));
-		fireEvent.click(screen.getByText("Next"));
-		fireEvent.click(screen.getByText("John Doe"));
-		fireEvent.click(screen.getByText("Next"));
-		fireEvent.click(screen.getByText("10:00"));
-		fireEvent.click(screen.getByText("Next"));
+		await user.click(screen.getByText("Small Tattoo"));
+		await user.click(screen.getByText("Next"));
+		await user.click(screen.getByText("John Doe"));
+		await user.click(screen.getByText("Next"));
+		await user.click(screen.getByText("10:00"));
+		await user.click(screen.getByText("Next"));
 
 		// Fill form
-		fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: "Test User" } });
-		fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "test@example.com" } });
-		fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "500 123 456" } });
-		fireEvent.change(screen.getByLabelText(/Tattoo description/i), { target: { value: "A cool dragon tattoo" } });
+		await user.type(screen.getByLabelText(/Name/i), "Test User");
+		await user.type(screen.getByLabelText(/Email/i), "test@example.com");
+		await user.type(screen.getByLabelText(/Phone/i), "500 123 456");
+		await user.type(screen.getByLabelText(/Tattoo description/i), "A cool dragon tattoo");
 
-		// Upload file
+		// Upload file using userEvent
 		const file = new File(["(⌐□_□)"], "chucknorris.png", { type: "image/png" });
 		const input = screen.getByLabelText(/Reference Images/i);
-
-		fireEvent.change(input, { target: { files: [file] } });
+		await user.upload(input, file);
 
 		// Submit
-		fireEvent.click(screen.getByText("Submit"));
+		await user.click(screen.getByText("Submit"));
 
 		await waitFor(() => {
 			expect(createAppointmentApi.createAppointment).toHaveBeenCalledWith(

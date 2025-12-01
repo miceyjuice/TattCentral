@@ -174,9 +174,9 @@ describe("RescheduleDialog", () => {
 		const dateButton = selectDate("20.12.2025");
 		await user.click(dateButton);
 
-		// Check for loading spinner
-		const spinner = document.querySelector(".animate-spin");
-		expect(spinner).toBeInTheDocument();
+		// Check for loading indicator using accessible role
+		const loadingIndicator = screen.getByRole("status", { name: /loading available times/i });
+		expect(loadingIndicator).toBeInTheDocument();
 	});
 
 	// ==========================================
@@ -327,10 +327,9 @@ describe("RescheduleDialog", () => {
 
 		render(<RescheduleDialog appointment={mockAppointment} open={true} onOpenChange={mockOnOpenChange} />);
 
-		// Check for spinner inside the confirm button area
+		// Check for aria-busy attribute on the confirm button indicating loading state
 		const confirmButton = screen.getByRole("button", { name: /confirm reschedule/i });
-		const spinner = confirmButton.querySelector(".animate-spin");
-		expect(spinner).toBeInTheDocument();
+		expect(confirmButton).toHaveAttribute("aria-busy", "true");
 	});
 
 	// ==========================================
