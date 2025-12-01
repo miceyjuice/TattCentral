@@ -77,8 +77,10 @@ export function AppointmentCard({ appointment, onViewDetails }: AppointmentCardP
 								type="button"
 								variant="ghost"
 								onClick={onViewDetails}
+								aria-label="View appointment details"
 							>
-								<Eye className="h-4 w-4" />
+								<Eye className="h-4 w-4" aria-hidden="true" />
+								<span className="sr-only">View Details</span>
 							</Button>
 						</>
 					) : (
@@ -104,8 +106,10 @@ export function AppointmentCard({ appointment, onViewDetails }: AppointmentCardP
 								type="button"
 								variant="ghost"
 								onClick={onViewDetails}
+								aria-label="View appointment details"
 							>
-								<Eye className="h-4 w-4" />
+								<Eye className="h-4 w-4" aria-hidden="true" />
+								<span className="sr-only">View Details</span>
 							</Button>
 						</>
 					)}
