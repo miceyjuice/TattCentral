@@ -11,6 +11,11 @@ vi.mock("@/features/appointments", () => ({
 	useUpdateAppointmentStatus: vi.fn(),
 }));
 
+// Mock RescheduleDialog to avoid needing QueryClientProvider
+vi.mock("./RescheduleDialog", () => ({
+	RescheduleDialog: () => null,
+}));
+
 describe("AppointmentDetailSheet", () => {
 	const mockUpdateStatus = vi.fn();
 	const mockOnOpenChange = vi.fn();
@@ -35,6 +40,7 @@ describe("AppointmentDetailSheet", () => {
 
 	const mockPendingDetail: AppointmentDetail = {
 		id: "appt-123",
+		artistId: "artist-1",
 		clientName: "John Doe",
 		clientEmail: "john.doe@example.com",
 		clientPhone: "+48 123 456 789",
@@ -52,6 +58,7 @@ describe("AppointmentDetailSheet", () => {
 
 	const mockUpcomingDetail: AppointmentDetail = {
 		id: "appt-456",
+		artistId: "artist-2",
 		clientName: "Jane Smith",
 		clientEmail: "jane.smith@example.com",
 		clientPhone: "+48 987 654 321",
