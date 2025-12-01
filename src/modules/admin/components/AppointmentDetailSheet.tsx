@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { Calendar, Check, Loader2, Mail, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAppointmentDetail, useUpdateAppointmentStatus, type UpcomingAppointment } from "@/features/appointments";
 import { useState } from "react";
 
@@ -179,12 +180,21 @@ export function AppointmentDetailSheet({ appointment, open, onOpenChange }: Appo
 								</>
 							) : (
 								<>
-									<Button
-										className="w-full rounded-full border border-transparent bg-[#2a1f1f] py-6 text-sm font-medium text-white transition hover:bg-[#332222]"
-										type="button"
-									>
-										Reschedule
-									</Button>
+									{/* TODO: Implement reschedule functionality - SCRUM-XX */}
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<Button
+												className="w-full rounded-full border border-transparent bg-[#2a1f1f] py-6 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-50"
+												type="button"
+												disabled
+											>
+												Reschedule
+											</Button>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>Coming soon</p>
+										</TooltipContent>
+									</Tooltip>
 									<Button
 										className="w-full rounded-full border border-white/20 bg-transparent py-6 text-sm font-medium text-white transition hover:bg-white/10"
 										type="button"

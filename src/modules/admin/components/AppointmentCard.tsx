@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useUpdateAppointmentStatus, type UpcomingAppointment } from "@/features/appointments";
 import { cn } from "@/lib/utils";
 import { Eye, Loader2 } from "lucide-react";
@@ -85,12 +86,21 @@ export function AppointmentCard({ appointment, onViewDetails }: AppointmentCardP
 						</>
 					) : (
 						<>
-							<Button
-								className="rounded-full border border-transparent bg-gray-100 px-6 py-5 text-sm font-medium text-black transition hover:bg-gray-100/80"
-								type="button"
-							>
-								Reschedule
-							</Button>
+							{/* TODO: Implement reschedule functionality - SCRUM-XX */}
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										className="rounded-full border border-transparent bg-gray-100 px-6 py-5 text-sm font-medium text-black transition disabled:cursor-not-allowed disabled:opacity-50"
+										type="button"
+										disabled
+									>
+										Reschedule
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Coming soon</p>
+								</TooltipContent>
+							</Tooltip>
 							<Button
 								className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
 								type="button"
