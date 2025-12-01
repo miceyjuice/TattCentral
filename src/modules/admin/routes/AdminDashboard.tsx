@@ -1,23 +1,49 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useAppointments, type UpcomingAppointment, type PastAppointment } from "@/features/appointments";
+import {
+	useAppointments,
+	useAppointmentDetail,
+	type UpcomingAppointment,
+	type PastAppointment,
+} from "@/features/appointments";
 import AdminHeader from "@/modules/admin/components/AdminHeader";
 import PastAppointmentsTable from "@/modules/admin/components/PastAppointmentsTable";
 import { AppointmentCard } from "@/modules/admin/components/AppointmentCard";
 import { AppointmentDetailSheet } from "@/modules/admin/components/AppointmentDetailSheet";
+import { RescheduleDialog } from "@/modules/admin/components/RescheduleDialog";
 
 const AdminDashboard = () => {
 	const { data, isLoading, isError, error, refetch } = useAppointments();
 	const upcomingAppointments: UpcomingAppointment[] = data?.upcoming ?? [];
 	const pastAppointments: PastAppointment[] = data?.past ?? [];
 
+	// Detail sheet state
 	const [selectedAppointment, setSelectedAppointment] = useState<UpcomingAppointment | null>(null);
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+	// Reschedule dialog state
+	const [rescheduleAppointmentId, setRescheduleAppointmentId] = useState<string | null>(null);
+	const [isRescheduleDialogOpen, setIsRescheduleDialogOpen] = useState(false);
+
+	// Fetch appointment detail for reschedule dialog
+	const { data: rescheduleDetail } = useAppointmentDetail(rescheduleAppointmentId);
 
 	const handleOpenDetail = (appointment: UpcomingAppointment) => {
 		setSelectedAppointment(appointment);
 		setIsSheetOpen(true);
+	};
+
+	const handleOpenReschedule = (appointment: UpcomingAppointment) => {
+		setRescheduleAppointmentId(appointment.id);
+		setIsRescheduleDialogOpen(true);
+	};
+
+	const handleRescheduleDialogClose = (open: boolean) => {
+		setIsRescheduleDialogOpen(open);
+		if (!open) {
+			setRescheduleAppointmentId(null);
+		}
 	};
 
 	return (
@@ -35,6 +61,7 @@ const AdminDashboard = () => {
 								key={appointment.id}
 								appointment={appointment}
 								onViewDetails={() => handleOpenDetail(appointment)}
+								onReschedule={() => handleOpenReschedule(appointment)}
 							/>
 						))}
 					</section>
@@ -61,6 +88,15 @@ const AdminDashboard = () => {
 				open={isSheetOpen}
 				onOpenChange={setIsSheetOpen}
 			/>
+
+			{/* Reschedule Dialog - opened directly from card */}
+			{rescheduleDetail && (
+				<RescheduleDialog
+					appointment={rescheduleDetail}
+					open={isRescheduleDialogOpen}
+					onOpenChange={handleRescheduleDialogClose}
+				/>
+			)}
 		</>
 	);
 };

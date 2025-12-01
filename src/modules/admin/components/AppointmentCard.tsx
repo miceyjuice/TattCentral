@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useUpdateAppointmentStatus, type UpcomingAppointment } from "@/features/appointments";
 import { cn } from "@/lib/utils";
 import { Eye, Loader2 } from "lucide-react";
@@ -8,11 +7,12 @@ import { useState } from "react";
 interface AppointmentCardProps {
 	appointment: UpcomingAppointment;
 	onViewDetails?: () => void;
+	onReschedule?: () => void;
 }
 
 type PendingAction = "approve" | "decline" | "cancel" | null;
 
-export function AppointmentCard({ appointment, onViewDetails }: AppointmentCardProps) {
+export function AppointmentCard({ appointment, onViewDetails, onReschedule }: AppointmentCardProps) {
 	const { mutate: updateStatus, isPending: isUpdating } = useUpdateAppointmentStatus();
 	const [pendingAction, setPendingAction] = useState<PendingAction>(null);
 
@@ -86,23 +86,13 @@ export function AppointmentCard({ appointment, onViewDetails }: AppointmentCardP
 						</>
 					) : (
 						<>
-							{/* TODO: Implement reschedule functionality - SCRUM-XX */}
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<span tabIndex={0} className="inline-block">
-										<Button
-											className="pointer-events-none rounded-full border border-transparent bg-gray-100 px-6 py-5 text-sm font-medium text-black opacity-50"
-											type="button"
-											aria-disabled="true"
-										>
-											Reschedule
-										</Button>
-									</span>
-								</TooltipTrigger>
-								<TooltipContent>
-									<p>Coming soon</p>
-								</TooltipContent>
-							</Tooltip>
+							<Button
+								className="rounded-full border border-transparent bg-gray-100 px-6 py-5 text-sm font-medium text-black transition hover:bg-gray-100/80"
+								type="button"
+								onClick={onReschedule}
+							>
+								Reschedule
+							</Button>
 							<Button
 								className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
 								type="button"

@@ -2,9 +2,9 @@ import { format } from "date-fns";
 import { Calendar, Check, Loader2, Mail, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAppointmentDetail, useUpdateAppointmentStatus, type UpcomingAppointment } from "@/features/appointments";
 import { useState } from "react";
+import { RescheduleDialog } from "./RescheduleDialog";
 
 interface AppointmentDetailSheetProps {
 	appointment: UpcomingAppointment | null;
@@ -18,6 +18,7 @@ export function AppointmentDetailSheet({ appointment, open, onOpenChange }: Appo
 	const { data: detail, isLoading } = useAppointmentDetail(open ? (appointment?.id ?? null) : null);
 	const { mutate: updateStatus, isPending: isUpdating } = useUpdateAppointmentStatus();
 	const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+	const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false);
 
 	const handleUpdateStatus = (action: PendingAction, status: "upcoming" | "cancelled", successMessage: string) => {
 		if (!appointment) return;
@@ -192,23 +193,13 @@ export function AppointmentDetailSheet({ appointment, open, onOpenChange }: Appo
 								</>
 							) : (
 								<>
-									{/* TODO: Implement reschedule functionality - SCRUM-XX */}
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<span tabIndex={0} className="inline-block w-full">
-												<Button
-													className="pointer-events-none w-full rounded-full border border-transparent bg-[#2a1f1f] py-6 text-sm font-medium text-white opacity-50"
-													type="button"
-													aria-disabled="true"
-												>
-													Reschedule
-												</Button>
-											</span>
-										</TooltipTrigger>
-										<TooltipContent>
-											<p>Coming soon</p>
-										</TooltipContent>
-									</Tooltip>
+									<Button
+										className="w-full rounded-full border border-transparent bg-[#2a1f1f] py-6 text-sm font-medium text-white transition hover:bg-[#3a2f2f]"
+										type="button"
+										onClick={() => setRescheduleDialogOpen(true)}
+									>
+										Reschedule
+									</Button>
 									<Button
 										className="w-full rounded-full border border-white/20 bg-transparent py-6 text-sm font-medium text-white transition hover:bg-white/10"
 										type="button"
@@ -231,6 +222,16 @@ export function AppointmentDetailSheet({ appointment, open, onOpenChange }: Appo
 					<div className="flex h-64 items-center justify-center text-white/60">Appointment not found</div>
 				)}
 			</SheetContent>
+
+			{/* Reschedule Dialog */}
+			{detail && (
+				<RescheduleDialog
+					appointment={detail}
+					open={rescheduleDialogOpen}
+					onOpenChange={setRescheduleDialogOpen}
+					onSuccess={() => onOpenChange(false)}
+				/>
+			)}
 		</Sheet>
 	);
 }
