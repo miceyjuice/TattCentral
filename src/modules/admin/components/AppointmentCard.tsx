@@ -1,16 +1,18 @@
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useUpdateAppointmentStatus, type UpcomingAppointment } from "@/features/appointments";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 interface AppointmentCardProps {
 	appointment: UpcomingAppointment;
+	onViewDetails?: () => void;
 }
 
 type PendingAction = "approve" | "decline" | "cancel" | null;
 
-export function AppointmentCard({ appointment }: AppointmentCardProps) {
+export function AppointmentCard({ appointment, onViewDetails }: AppointmentCardProps) {
 	const { mutate: updateStatus, isPending: isUpdating } = useUpdateAppointmentStatus();
 	const [pendingAction, setPendingAction] = useState<PendingAction>(null);
 
@@ -25,14 +27,10 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 	return (
 		<article
 			className={cn(
-				"rounded-4xl border bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]",
-				appointment.status === "pending" ? "border-yellow-500/50" : "border-white/10",
+				"rounded-4xl border border-white/10 bg-[#1f1818] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)]",
 				isUpdating && "opacity-75",
 			)}
 		>
-			<div className="w-full overflow-hidden rounded-t-4xl">
-				{/* <img alt={appointment.title} className="h-full w-full object-cover" src={appointment.image} /> */}
-			</div>
 			<div className="space-y-5 px-8 py-6">
 				<div className="space-y-4">
 					<div className="flex flex-col gap-1">
@@ -56,7 +54,8 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 					{appointment.status === "pending" ? (
 						<>
 							<Button
-								className="rounded-full border border-transparent bg-green-600 px-6 py-5 text-sm font-medium text-white transition hover:bg-green-700"
+								variant="default"
+								className="rounded-full border border-transparent bg-gray-100 px-6 py-5 text-sm font-medium text-black transition hover:bg-gray-100/80"
 								type="button"
 								onClick={() => handleUpdateStatus("approve", "upcoming", "Appointment approved")}
 								disabled={isUpdating}
@@ -74,15 +73,36 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 								{pendingAction === "decline" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 								Decline
 							</Button>
+							<Button
+								className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
+								type="button"
+								variant="ghost"
+								onClick={onViewDetails}
+								aria-label="View appointment details"
+							>
+								<Eye className="h-4 w-4" aria-hidden="true" />
+								<span className="sr-only">View Details</span>
+							</Button>
 						</>
 					) : (
 						<>
-							<Button
-								className="rounded-full border border-transparent bg-[#2a1f1f] px-6 py-5 text-sm font-medium text-white transition hover:bg-[#332222]"
-								type="button"
-							>
-								Reschedule
-							</Button>
+							{/* TODO: Implement reschedule functionality - SCRUM-XX */}
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<span tabIndex={0} className="inline-block">
+										<Button
+											className="pointer-events-none rounded-full border border-transparent bg-gray-100 px-6 py-5 text-sm font-medium text-black opacity-50"
+											type="button"
+											aria-disabled="true"
+										>
+											Reschedule
+										</Button>
+									</span>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Coming soon</p>
+								</TooltipContent>
+							</Tooltip>
 							<Button
 								className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
 								type="button"
@@ -92,6 +112,16 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
 							>
 								{pendingAction === "cancel" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 								Cancel
+							</Button>
+							<Button
+								className="rounded-full border border-white/20 bg-transparent px-6 py-5 text-sm font-medium text-white transition hover:bg-white/10"
+								type="button"
+								variant="ghost"
+								onClick={onViewDetails}
+								aria-label="View appointment details"
+							>
+								<Eye className="h-4 w-4" aria-hidden="true" />
+								<span className="sr-only">View Details</span>
 							</Button>
 						</>
 					)}

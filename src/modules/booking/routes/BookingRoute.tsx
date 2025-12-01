@@ -167,6 +167,9 @@ export const BookingRoute = () => {
 						artistName: finalArtistName,
 						clientId: user?.uid || `guest_${crypto.randomUUID()}`, // Generate unique guest ID
 						clientName: data.name,
+						clientEmail: data.email,
+						clientPhone: data.phone,
+						description: data.tattooDescription,
 						type: selectedService.label,
 						startTime: startDateTime,
 						endTime: endDateTime,

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Dropzone } from "./dropzone";
-import { vi, describe, it, expect, beforeEach } from "vitest";
+import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { toast } from "sonner";
 
 // Mock URL.createObjectURL and URL.revokeObjectURL
@@ -16,8 +16,19 @@ vi.mock("sonner", () => ({
 }));
 
 describe("Dropzone", () => {
+	let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+	let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+
 	beforeEach(() => {
 		vi.clearAllMocks();
+		// Suppress console errors/warnings from File object circular references during tests
+		consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+		consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+	});
+
+	afterEach(() => {
+		consoleErrorSpy.mockRestore();
+		consoleWarnSpy.mockRestore();
 	});
 
 	it("renders correctly", () => {

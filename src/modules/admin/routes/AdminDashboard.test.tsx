@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import AdminDashboard from "./AdminDashboard";
 import { MemoryRouter } from "react-router-dom";
-import { useAppointments, useUpdateAppointmentStatus } from "@/features/appointments";
+import { useAppointments, useUpdateAppointmentStatus, useAppointmentDetail } from "@/features/appointments";
 import { useAuth } from "@/context/AuthContext";
 
 // Mock the hooks
@@ -13,6 +13,7 @@ vi.mock("@/features/appointments", async () => {
 		...actual,
 		useAppointments: vi.fn(),
 		useUpdateAppointmentStatus: vi.fn(),
+		useAppointmentDetail: vi.fn(),
 	};
 });
 
@@ -45,6 +46,11 @@ describe("AdminDashboard", () => {
 		(useUpdateAppointmentStatus as Mock).mockReturnValue({
 			mutate: vi.fn(),
 			isPending: false,
+		});
+		// Default mock for useAppointmentDetail (for the detail sheet)
+		(useAppointmentDetail as Mock).mockReturnValue({
+			data: null,
+			isLoading: false,
 		});
 	});
 

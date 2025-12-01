@@ -45,12 +45,6 @@ const AdminLayout = () => {
 							))}
 						</nav>
 					</div>
-					<div className="rounded-3xl border border-white/10 bg-[#1f1818]/80 px-4 py-3 text-sm text-white/60">
-						<p className="font-medium text-white/80">Workspace Tips</p>
-						<p className="mt-2 text-xs leading-snug text-white/50">
-							Switch to the History tab to review follow-ups and mark sessions as completed.
-						</p>
-					</div>
 				</aside>
 				<main className="flex-1 pb-16">
 					<Outlet />
