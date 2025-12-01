@@ -48,6 +48,7 @@ export type AppointmentsResponse = {
  */
 export type AppointmentDetail = {
 	id: string;
+	artistId: string;
 	clientName: string;
 	clientEmail?: string;
 	clientPhone?: string;

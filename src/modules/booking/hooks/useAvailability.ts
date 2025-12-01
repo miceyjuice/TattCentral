@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { startOfDay, endOfDay, addMinutes, setHours, setMinutes, isBefore, isAfter } from "date-fns";
@@ -13,6 +13,10 @@ export const useAvailability = (date: Date | undefined, durationMinutes: number,
 	const [availableTimes, setAvailableTimes] = useState<string[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const { data: artists = [] } = useArtists();
+
+	// Use ref to access artists without adding to dependencies (prevents infinite loop)
+	const artistsRef = useRef(artists);
+	artistsRef.current = artists;
 
 	useEffect(() => {
 		const fetchAvailability = async () => {
@@ -48,6 +52,7 @@ export const useAvailability = (date: Date | undefined, durationMinutes: number,
 				let currentSlot = setMinutes(setHours(date, SHOP_OPEN_HOUR), 0);
 				const closingTime = setMinutes(setHours(date, SHOP_CLOSE_HOUR), 0);
 				const now = new Date();
+				const currentArtists = artistsRef.current;
 
 				while (
 					isBefore(addMinutes(currentSlot, durationMinutes), closingTime) ||
@@ -76,7 +81,7 @@ export const useAvailability = (date: Date | undefined, durationMinutes: number,
 					} else {
 						// Check if ANY artist is free
 						// We need at least one artist who does NOT have an overlap
-						const availableArtists = artists.filter((artist) => {
+						const availableArtists = currentArtists.filter((artist) => {
 							const hasOverlap = appointments.some((appt) => {
 								if (appt.artistId !== artist.id) return false;
 								if (appt.status === "cancelled") return false;
@@ -110,7 +115,7 @@ export const useAvailability = (date: Date | undefined, durationMinutes: number,
 		};
 
 		fetchAvailability();
-	}, [date, durationMinutes, artistId, artists]);
+	}, [date, durationMinutes, artistId]);
 
 	return { availableTimes, isLoading };
 };

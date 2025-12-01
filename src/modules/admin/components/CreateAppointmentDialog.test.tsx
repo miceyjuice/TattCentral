@@ -126,7 +126,7 @@ describe("CreateAppointmentDialog", () => {
 		const fixedDate = new Date(2024, 5, 10); // June 10, 2024
 		vi.setSystemTime(fixedDate);
 
-		const user = userEvent.setup();
+		const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 		render(<CreateAppointmentDialog />);
 
 		// Open dialog
@@ -147,11 +147,13 @@ describe("CreateAppointmentDialog", () => {
 		// We need to wait for the calendar to appear
 		await waitFor(() => expect(screen.getByRole("grid")).toBeInTheDocument());
 
-		// Pick a known day (e.g., 15th of the month)
-		// We use regex to match "15" in the aria-label (e.g. "Saturday, June 15th, 2024")
-		// and ensure we are picking the button for the day.
-		const dayButton = screen.getByRole("button", { name: /15/ });
-		await user.click(dayButton);
+		// Pick the 15th of June 2024 using data-day attribute for reliable selection
+		// The calendar uses toLocaleDateString() which gives locale-specific format (e.g., "15.06.2024")
+		const targetDate = new Date(2024, 5, 15);
+		const dataDay = targetDate.toLocaleDateString();
+		const dayButton = document.querySelector(`[data-day="${dataDay}"]`);
+		expect(dayButton).not.toBeNull();
+		await user.click(dayButton!);
 
 		// Submit
 		await user.click(screen.getByRole("button", { name: /create booking/i }));
