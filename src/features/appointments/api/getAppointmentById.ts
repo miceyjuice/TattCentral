@@ -18,6 +18,7 @@ export const getAppointmentById = async (appointmentId: string): Promise<Appoint
 
 	return {
 		id: appointmentSnap.id,
+		artistId: data.artistId,
 		clientName: data.clientName,
 		clientEmail: data.clientEmail,
 		clientPhone: data.clientPhone,
