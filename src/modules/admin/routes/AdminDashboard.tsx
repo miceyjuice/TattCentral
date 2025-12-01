@@ -24,10 +24,12 @@ const AdminDashboard = () => {
 
 	// Reschedule dialog state
 	const [rescheduleAppointmentId, setRescheduleAppointmentId] = useState<string | null>(null);
-	const [isRescheduleDialogOpen, setIsRescheduleDialogOpen] = useState(false);
 
 	// Fetch appointment detail for reschedule dialog
 	const { data: rescheduleDetail } = useAppointmentDetail(rescheduleAppointmentId);
+
+	// Dialog is open when we have both an ID and the data has loaded
+	const isRescheduleDialogOpen = rescheduleAppointmentId !== null && rescheduleDetail !== undefined;
 
 	const handleOpenDetail = (appointment: UpcomingAppointment) => {
 		setSelectedAppointment(appointment);
@@ -36,11 +38,9 @@ const AdminDashboard = () => {
 
 	const handleOpenReschedule = (appointment: UpcomingAppointment) => {
 		setRescheduleAppointmentId(appointment.id);
-		setIsRescheduleDialogOpen(true);
 	};
 
 	const handleRescheduleDialogClose = (open: boolean) => {
-		setIsRescheduleDialogOpen(open);
 		if (!open) {
 			setRescheduleAppointmentId(null);
 		}
