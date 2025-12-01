@@ -85,25 +85,33 @@ export function AppointmentDetailSheet({ appointment, open, onOpenChange }: Appo
 						</div>
 
 						{/* Contact Info */}
-						<div className="space-y-2">
-							<h3 className="text-xs font-medium tracking-wider text-white/40 uppercase">Contact Info</h3>
+						{(detail.clientEmail || detail.clientPhone) && (
 							<div className="space-y-2">
-								<a
-									href={`mailto:${detail.clientEmail}`}
-									className="flex items-center gap-3 text-sm text-green-400 hover:underline"
-								>
-									<Mail className="h-4 w-4" />
-									{detail.clientEmail}
-								</a>
-								<a
-									href={`tel:${detail.clientPhone}`}
-									className="flex items-center gap-3 text-sm text-white"
-								>
-									<Phone className="h-4 w-4" />
-									{detail.clientPhone}
-								</a>
+								<h3 className="text-xs font-medium tracking-wider text-white/40 uppercase">
+									Contact Info
+								</h3>
+								<div className="space-y-2">
+									{detail.clientEmail && (
+										<a
+											href={`mailto:${detail.clientEmail}`}
+											className="flex items-center gap-3 text-sm text-green-400 hover:underline"
+										>
+											<Mail className="h-4 w-4" />
+											{detail.clientEmail}
+										</a>
+									)}
+									{detail.clientPhone && (
+										<a
+											href={`tel:${detail.clientPhone}`}
+											className="flex items-center gap-3 text-sm text-white"
+										>
+											<Phone className="h-4 w-4" />
+											{detail.clientPhone}
+										</a>
+									)}
+								</div>
 							</div>
-						</div>
+						)}
 
 						{/* Description */}
 						{detail.description && (

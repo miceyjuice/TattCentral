@@ -6,8 +6,8 @@ export type AppointmentDocument = {
 	clientId: string;
 	artistName: string;
 	clientName: string;
-	clientEmail: string;
-	clientPhone: string;
+	clientEmail?: string;
+	clientPhone?: string;
 	description?: string;
 	type: string;
 	startTime: Timestamp;
@@ -49,8 +49,8 @@ export type AppointmentsResponse = {
 export type AppointmentDetail = {
 	id: string;
 	clientName: string;
-	clientEmail: string;
-	clientPhone: string;
+	clientEmail?: string;
+	clientPhone?: string;
 	description?: string;
 	type: string;
 	status: "upcoming" | "completed" | "cancelled" | "pending";
