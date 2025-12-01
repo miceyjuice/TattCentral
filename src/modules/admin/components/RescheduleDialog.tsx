@@ -132,7 +132,11 @@ export function RescheduleDialog({ appointment, open, onOpenChange, onSuccess }:
 								Select New Time
 							</h4>
 							{isLoadingAvailability ? (
-								<div className="flex items-center justify-center py-4">
+								<div
+									className="flex items-center justify-center py-4"
+									role="status"
+									aria-label="Loading available times"
+								>
 									<Loader2 className="h-5 w-5 animate-spin text-white/60" />
 								</div>
 							) : (
@@ -184,6 +188,7 @@ export function RescheduleDialog({ appointment, open, onOpenChange, onSuccess }:
 						type="button"
 						onClick={handleConfirm}
 						disabled={isConfirmDisabled}
+						aria-busy={isRescheduling}
 						className="bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
 					>
 						{isRescheduling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
