@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { Calendar, Check, Loader2, Mail, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAppointmentDetail, useUpdateAppointmentStatus, type UpcomingAppointment } from "@/features/appointments";
 import { useState } from "react";
@@ -49,6 +49,10 @@ export function AppointmentDetailSheet({ appointment, open, onOpenChange }: Appo
 			>
 				<SheetHeader className="p-0">
 					<SheetTitle className="text-xl text-white">Appointment details</SheetTitle>
+					<SheetDescription className="sr-only">
+						View and manage appointment information including client details, schedule, and reference
+						images.
+					</SheetDescription>
 				</SheetHeader>
 
 				{isLoading ? (
