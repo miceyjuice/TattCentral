@@ -89,13 +89,15 @@ export function AppointmentCard({ appointment, onViewDetails }: AppointmentCardP
 							{/* TODO: Implement reschedule functionality - SCRUM-XX */}
 							<Tooltip>
 								<TooltipTrigger asChild>
-									<Button
-										className="rounded-full border border-transparent bg-gray-100 px-6 py-5 text-sm font-medium text-black transition disabled:cursor-not-allowed disabled:opacity-50"
-										type="button"
-										disabled
-									>
-										Reschedule
-									</Button>
+									<span tabIndex={0} className="inline-block">
+										<Button
+											className="pointer-events-none rounded-full border border-transparent bg-gray-100 px-6 py-5 text-sm font-medium text-black opacity-50"
+											type="button"
+											aria-disabled="true"
+										>
+											Reschedule
+										</Button>
+									</span>
 								</TooltipTrigger>
 								<TooltipContent>
 									<p>Coming soon</p>

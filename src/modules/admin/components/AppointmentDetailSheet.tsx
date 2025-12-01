@@ -187,13 +187,15 @@ export function AppointmentDetailSheet({ appointment, open, onOpenChange }: Appo
 									{/* TODO: Implement reschedule functionality - SCRUM-XX */}
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<Button
-												className="w-full rounded-full border border-transparent bg-[#2a1f1f] py-6 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-50"
-												type="button"
-												disabled
-											>
-												Reschedule
-											</Button>
+											<span tabIndex={0} className="inline-block w-full">
+												<Button
+													className="pointer-events-none w-full rounded-full border border-transparent bg-[#2a1f1f] py-6 text-sm font-medium text-white opacity-50"
+													type="button"
+													aria-disabled="true"
+												>
+													Reschedule
+												</Button>
+											</span>
 										</TooltipTrigger>
 										<TooltipContent>
 											<p>Coming soon</p>
