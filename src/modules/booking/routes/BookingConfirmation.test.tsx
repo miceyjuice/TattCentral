@@ -1,0 +1,179 @@
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { BookingConfirmation } from "./BookingConfirmation";
+
+// Mock window.open
+const mockWindowOpen = vi.fn();
+
+// Mock URL.createObjectURL and URL.revokeObjectURL
+const mockCreateObjectURL = vi.fn(() => "blob:mock-url");
+const mockRevokeObjectURL = vi.fn();
+
+const mockState = {
+	appointmentId: "test-appointment-123",
+	clientName: "Anna Kowalska",
+	clientEmail: "anna@example.com",
+	artistName: "Jan Nowak",
+	serviceLabel: "Small Tattoo",
+	startTime: new Date("2025-12-15T10:00:00"),
+	endTime: new Date("2025-12-15T11:00:00"),
+};
+
+function renderWithState(state: typeof mockState | null) {
+	return render(
+		<MemoryRouter initialEntries={[{ pathname: "/booking/confirmation", state }]}>
+			<Routes>
+				<Route path="/booking/confirmation" element={<BookingConfirmation />} />
+				<Route path="/booking" element={<div>Booking Page</div>} />
+				<Route path="/" element={<div>Home Page</div>} />
+			</Routes>
+		</MemoryRouter>,
+	);
+}
+
+describe("BookingConfirmation", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.stubGlobal("open", mockWindowOpen);
+		URL.createObjectURL = mockCreateObjectURL;
+		URL.revokeObjectURL = mockRevokeObjectURL;
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
+	describe("rendering", () => {
+		it("displays success message", () => {
+			renderWithState(mockState);
+
+			expect(screen.getByText("Booking Request Sent!")).toBeInTheDocument();
+			expect(
+				screen.getByText(/Your appointment is pending approval/),
+			).toBeInTheDocument();
+		});
+
+		it("displays client name in appointment details", () => {
+			renderWithState(mockState);
+
+			expect(screen.getByText("Anna Kowalska")).toBeInTheDocument();
+		});
+
+		it("displays artist name in appointment details", () => {
+			renderWithState(mockState);
+
+			expect(screen.getByText("Jan Nowak")).toBeInTheDocument();
+		});
+
+		it("displays formatted date", () => {
+			renderWithState(mockState);
+
+			expect(screen.getByText("Monday, 15 December 2025")).toBeInTheDocument();
+		});
+
+		it("displays formatted time with duration", () => {
+			renderWithState(mockState);
+
+			expect(screen.getByText("10:00 - 11:00 (60m)")).toBeInTheDocument();
+		});
+
+		it("displays service label", () => {
+			renderWithState(mockState);
+
+			expect(screen.getByText("Small Tattoo")).toBeInTheDocument();
+		});
+
+		it("displays email notice with client email", () => {
+			renderWithState(mockState);
+
+			expect(screen.getByText("Check your email")).toBeInTheDocument();
+			expect(screen.getByText("anna@example.com")).toBeInTheDocument();
+		});
+
+		it("displays add to calendar section", () => {
+			renderWithState(mockState);
+
+			expect(screen.getByText("Add to Calendar")).toBeInTheDocument();
+			expect(screen.getByRole("button", { name: /Google Calendar/i })).toBeInTheDocument();
+			expect(screen.getByRole("button", { name: /Outlook/i })).toBeInTheDocument();
+			expect(screen.getByRole("button", { name: /Apple Calendar/i })).toBeInTheDocument();
+		});
+
+		it("displays back to home button", () => {
+			renderWithState(mockState);
+
+			expect(screen.getByRole("button", { name: /Back to Home/i })).toBeInTheDocument();
+		});
+	});
+
+	describe("calendar buttons", () => {
+		it("opens Google Calendar URL when clicking Google Calendar button", async () => {
+			const user = userEvent.setup();
+			renderWithState(mockState);
+
+			await user.click(screen.getByRole("button", { name: /Google Calendar/i }));
+
+			expect(mockWindowOpen).toHaveBeenCalledTimes(1);
+			expect(mockWindowOpen).toHaveBeenCalledWith(
+				expect.stringContaining("calendar.google.com"),
+				"_blank",
+			);
+		});
+
+		it("opens Outlook URL when clicking Outlook button", async () => {
+			const user = userEvent.setup();
+			renderWithState(mockState);
+
+			await user.click(screen.getByRole("button", { name: /Outlook/i }));
+
+			expect(mockWindowOpen).toHaveBeenCalledTimes(1);
+			expect(mockWindowOpen).toHaveBeenCalledWith(
+				expect.stringContaining("outlook.live.com"),
+				"_blank",
+			);
+		});
+
+		it("creates blob URL when clicking Apple Calendar button", async () => {
+			const user = userEvent.setup();
+			renderWithState(mockState);
+
+			await user.click(screen.getByRole("button", { name: /Apple Calendar/i }));
+
+			expect(mockCreateObjectURL).toHaveBeenCalled();
+			expect(mockRevokeObjectURL).toHaveBeenCalled();
+		});
+	});
+
+	describe("navigation", () => {
+		it("redirects to booking page when no state is provided", () => {
+			renderWithState(null);
+
+			expect(screen.getByText("Booking Page")).toBeInTheDocument();
+		});
+
+		it("navigates to home when clicking Back to Home button", async () => {
+			const user = userEvent.setup();
+			renderWithState(mockState);
+
+			await user.click(screen.getByRole("button", { name: /Back to Home/i }));
+
+			expect(screen.getByText("Home Page")).toBeInTheDocument();
+		});
+	});
+
+	describe("Google Calendar URL generation", () => {
+		it("includes appointment details in Google Calendar URL", async () => {
+			const user = userEvent.setup();
+			renderWithState(mockState);
+
+			await user.click(screen.getByRole("button", { name: /Google Calendar/i }));
+
+			const calledUrl = mockWindowOpen.mock.calls[0][0] as string;
+			expect(calledUrl).toContain("Small+Tattoo");
+			expect(calledUrl).toContain("TattCentral");
+			expect(calledUrl).toContain("Jan+Nowak");
+		});
+	});
+});

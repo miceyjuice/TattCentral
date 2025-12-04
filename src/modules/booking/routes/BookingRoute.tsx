@@ -189,8 +189,18 @@ export const BookingRoute = () => {
 				throw uploadError;
 			}
 
-			toast.success("Appointment request sent!");
-			navigate("/"); // Redirect to home or success page
+			// Navigate to confirmation page with booking details
+			navigate("/booking/confirmation", {
+				state: {
+					appointmentId,
+					clientName: data.name,
+					clientEmail: data.email,
+					artistName: finalArtistName,
+					serviceLabel: selectedService.label,
+					startTime: startDateTime,
+					endTime: endDateTime,
+				},
+			});
 		} catch (error) {
 			console.error("Booking error:", error);
 			toast.error("Failed to book appointment. Please try again.");

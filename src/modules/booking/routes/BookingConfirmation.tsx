@@ -1,0 +1,231 @@
+import { useLocation, useNavigate, Navigate } from "react-router-dom";
+import { format } from "date-fns";
+import { Calendar, Clock, User, Mail, CheckCircle, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Navigation } from "@/components/Navigation";
+
+interface BookingConfirmationState {
+	appointmentId: string;
+	clientName: string;
+	clientEmail: string;
+	artistName: string;
+	serviceLabel: string;
+	startTime: Date;
+	endTime: Date;
+}
+
+/**
+ * Generates a Google Calendar URL with pre-filled event details
+ */
+function generateGoogleCalendarUrl(data: BookingConfirmationState): string {
+	const startTimeStr = format(data.startTime, "yyyyMMdd'T'HHmmss");
+	const endTimeStr = format(data.endTime, "yyyyMMdd'T'HHmmss");
+
+	const params = new URLSearchParams({
+		action: "TEMPLATE",
+		text: `${data.serviceLabel} - TattCentral`,
+		dates: `${startTimeStr}/${endTimeStr}`,
+		details: `Artist: ${data.artistName}\nService: ${data.serviceLabel}\n\nBooked via TattCentral`,
+		location: "TattCentral Studio",
+	});
+
+	return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+/**
+ * Generates an Outlook Calendar URL with pre-filled event details
+ */
+function generateOutlookCalendarUrl(data: BookingConfirmationState): string {
+	const startTimeStr = format(data.startTime, "yyyy-MM-dd'T'HH:mm:ss");
+	const endTimeStr = format(data.endTime, "yyyy-MM-dd'T'HH:mm:ss");
+
+	const params = new URLSearchParams({
+		path: "/calendar/action/compose",
+		rru: "addevent",
+		subject: `${data.serviceLabel} - TattCentral`,
+		startdt: startTimeStr,
+		enddt: endTimeStr,
+		body: `Artist: ${data.artistName}\nService: ${data.serviceLabel}\n\nBooked via TattCentral`,
+		location: "TattCentral Studio",
+	});
+
+	return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+}
+
+/**
+ * Generates an .ics file content for Apple Calendar and other calendar apps
+ */
+function generateIcsContent(data: BookingConfirmationState): string {
+	const startTimeStr = format(data.startTime, "yyyyMMdd'T'HHmmss");
+	const endTimeStr = format(data.endTime, "yyyyMMdd'T'HHmmss");
+	const now = format(new Date(), "yyyyMMdd'T'HHmmss");
+
+	return `BEGIN:VCALENDAR
+            VERSION:2.0
+            PRODID:-//TattCentral//Booking//EN
+            BEGIN:VEVENT
+            UID:${data.appointmentId}@tattcentral.com
+            DTSTAMP:${now}
+            DTSTART:${startTimeStr}
+            DTEND:${endTimeStr}
+            SUMMARY:${data.serviceLabel} - TattCentral
+            DESCRIPTION:Artist: ${data.artistName}\\nService: ${data.serviceLabel}\\n\\nBooked via TattCentral
+            LOCATION:TattCentral Studio
+            STATUS:TENTATIVE
+            END:VEVENT
+            END:VCALENDAR`;
+}
+
+function downloadIcsFile(data: BookingConfirmationState) {
+	const icsContent = generateIcsContent(data);
+	const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+	const url = URL.createObjectURL(blob);
+	const link = document.createElement("a");
+	link.href = url;
+	link.download = `tattcentral-appointment-${format(data.startTime, "yyyy-MM-dd")}.ics`;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	URL.revokeObjectURL(url);
+}
+
+export function BookingConfirmation() {
+	const location = useLocation();
+	const navigate = useNavigate();
+	const state = location.state as BookingConfirmationState | null;
+
+	// Redirect if no state (direct navigation to this page)
+	if (!state) {
+		return <Navigate to="/booking" replace />;
+	}
+
+	const durationMinutes = Math.round((state.endTime.getTime() - state.startTime.getTime()) / 60000);
+
+	return (
+		<div className="min-h-screen bg-[#0a0a0a]">
+			<Navigation />
+
+			<main className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
+				{/* Success Header */}
+				<div className="mb-8 text-center">
+					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
+						<CheckCircle className="h-8 w-8 text-green-500" />
+					</div>
+					<h1 className="text-3xl font-bold text-white">Booking Request Sent!</h1>
+					<p className="mt-2 text-white/60">
+						Your appointment is pending approval. We'll notify you once it's confirmed.
+					</p>
+				</div>
+
+				{/* Pending Status Notice */}
+				<div className="mb-8 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4">
+					<div className="flex items-start gap-3">
+						<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-yellow-500/20">
+							<Mail className="h-3.5 w-3.5 text-yellow-500" />
+						</div>
+						<div>
+							<h3 className="font-medium text-yellow-200">Check your email</h3>
+							<p className="mt-1 text-sm text-yellow-200/70">
+								We've sent a confirmation to <span className="font-medium">{state.clientEmail}</span>.
+								You'll receive another email once your appointment is approved.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				{/* Appointment Details */}
+				<div className="rounded-xl border border-white/10 bg-[#1a1a1a] p-6">
+					<h2 className="mb-4 text-sm font-medium tracking-wider text-white/40 uppercase">
+						Appointment Details
+					</h2>
+
+					<div className="space-y-4">
+						<div className="flex items-center gap-3">
+							<User className="h-5 w-5 text-white/40" />
+							<div>
+								<p className="text-sm text-white/60">Client</p>
+								<p className="text-white">{state.clientName}</p>
+							</div>
+						</div>
+
+						<div className="flex items-center gap-3">
+							<User className="h-5 w-5 text-white/40" />
+							<div>
+								<p className="text-sm text-white/60">Artist</p>
+								<p className="text-white">{state.artistName}</p>
+							</div>
+						</div>
+
+						<div className="flex items-center gap-3">
+							<Calendar className="h-5 w-5 text-white/40" />
+							<div>
+								<p className="text-sm text-white/60">Date</p>
+								<p className="text-white">{format(state.startTime, "EEEE, d MMMM yyyy")}</p>
+							</div>
+						</div>
+
+						<div className="flex items-center gap-3">
+							<Clock className="h-5 w-5 text-white/40" />
+							<div>
+								<p className="text-sm text-white/60">Time</p>
+								<p className="text-white">
+									{format(state.startTime, "HH:mm")} - {format(state.endTime, "HH:mm")} (
+									{durationMinutes}m)
+								</p>
+							</div>
+						</div>
+
+						<div className="border-t border-white/10 pt-4">
+							<p className="text-sm text-white/60">Service</p>
+							<p className="text-lg font-medium text-white">{state.serviceLabel}</p>
+						</div>
+					</div>
+				</div>
+
+				{/* Add to Calendar Section */}
+				<div className="mt-6 rounded-xl border border-white/10 bg-[#1a1a1a] p-6">
+					<h2 className="mb-4 text-sm font-medium tracking-wider text-white/40 uppercase">Add to Calendar</h2>
+					<p className="mb-4 text-sm text-white/60">
+						Save this appointment to your calendar so you don't forget!
+					</p>
+
+					<div className="flex flex-wrap gap-3">
+						<Button
+							variant="outline"
+							className="border-white/20 bg-transparent text-white hover:bg-white/10"
+							onClick={() => window.open(generateGoogleCalendarUrl(state), "_blank")}
+						>
+							<ExternalLink className="mr-2 h-4 w-4" />
+							Google Calendar
+						</Button>
+
+						<Button
+							variant="outline"
+							className="border-white/20 bg-transparent text-white hover:bg-white/10"
+							onClick={() => window.open(generateOutlookCalendarUrl(state), "_blank")}
+						>
+							<ExternalLink className="mr-2 h-4 w-4" />
+							Outlook
+						</Button>
+
+						<Button
+							variant="outline"
+							className="border-white/20 bg-transparent text-white hover:bg-white/10"
+							onClick={() => downloadIcsFile(state)}
+						>
+							<ExternalLink className="mr-2 h-4 w-4" />
+							Apple Calendar (.ics)
+						</Button>
+					</div>
+				</div>
+
+				{/* Back to Home Button */}
+				<div className="mt-8 text-center">
+					<Button onClick={() => navigate("/")} className="bg-white text-black hover:bg-white/90">
+						Back to Home
+					</Button>
+				</div>
+			</main>
+		</div>
+	);
+}
