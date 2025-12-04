@@ -105,11 +105,11 @@ export function BookingConfirmation() {
 		<div className="min-h-screen bg-[#0a0a0a]">
 			<Navigation />
 
-			<main className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
+			<main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
 				{/* Success Header */}
 				<div className="mb-8 text-center">
 					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
-						<CheckCircle className="h-8 w-8 text-green-500" />
+						<CheckCircle className="ml-[1px] h-8 w-8 text-green-500" />
 					</div>
 					<h1 className="text-3xl font-bold text-white">Booking Request Sent!</h1>
 					<p className="mt-2 text-white/60">
