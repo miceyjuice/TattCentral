@@ -50,9 +50,7 @@ describe("BookingConfirmation", () => {
 			renderWithState(mockState);
 
 			expect(screen.getByText("Booking Request Sent!")).toBeInTheDocument();
-			expect(
-				screen.getByText(/Your appointment is pending approval/),
-			).toBeInTheDocument();
+			expect(screen.getByText(/Your appointment is pending approval/)).toBeInTheDocument();
 		});
 
 		it("displays client name in appointment details", () => {
@@ -116,10 +114,7 @@ describe("BookingConfirmation", () => {
 			await user.click(screen.getByRole("button", { name: /Google Calendar/i }));
 
 			expect(mockWindowOpen).toHaveBeenCalledTimes(1);
-			expect(mockWindowOpen).toHaveBeenCalledWith(
-				expect.stringContaining("calendar.google.com"),
-				"_blank",
-			);
+			expect(mockWindowOpen).toHaveBeenCalledWith(expect.stringContaining("calendar.google.com"), "_blank");
 		});
 
 		it("opens Outlook URL when clicking Outlook button", async () => {
@@ -129,10 +124,7 @@ describe("BookingConfirmation", () => {
 			await user.click(screen.getByRole("button", { name: /Outlook/i }));
 
 			expect(mockWindowOpen).toHaveBeenCalledTimes(1);
-			expect(mockWindowOpen).toHaveBeenCalledWith(
-				expect.stringContaining("outlook.live.com"),
-				"_blank",
-			);
+			expect(mockWindowOpen).toHaveBeenCalledWith(expect.stringContaining("outlook.live.com"), "_blank");
 		});
 
 		it("creates blob URL when clicking Apple Calendar button", async () => {
