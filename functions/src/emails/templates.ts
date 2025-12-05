@@ -417,16 +417,26 @@ export function appointmentRescheduledHtml(
 }
 
 /**
+ * Formats a Date to Google Calendar format: YYYYMMDDTHHMMSSZ
+ */
+function formatDateForCalendar(date: Date): string {
+	return date
+		.toISOString()
+		.replace(/[-:]/g, "")
+		.replace(/\.\d{3}/, "");
+}
+
+/**
  * Generates a Google Calendar URL
  */
 function generateGoogleCalendarUrl(data: AppointmentEmailData): string {
-	// Note: In production, you'd parse the date/time properly
-	// For now, using a simplified format
 	const title = encodeURIComponent(`${data.serviceType} - TattCentral`);
 	const details = encodeURIComponent(`Artist: ${data.artistName}\nService: ${data.serviceType}`);
 	const location = encodeURIComponent("TattCentral Studio");
+	const startDate = formatDateForCalendar(data.startTime);
+	const endDate = formatDateForCalendar(data.endTime);
 
-	return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}`;
+	return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${startDate}/${endDate}`;
 }
 
 /**
@@ -436,6 +446,8 @@ function generateOutlookCalendarUrl(data: AppointmentEmailData): string {
 	const subject = encodeURIComponent(`${data.serviceType} - TattCentral`);
 	const body = encodeURIComponent(`Artist: ${data.artistName}\nService: ${data.serviceType}`);
 	const location = encodeURIComponent("TattCentral Studio");
+	const startDate = data.startTime.toISOString();
+	const endDate = data.endTime.toISOString();
 
-	return `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject=${subject}&body=${body}&location=${location}`;
+	return `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject=${subject}&body=${body}&location=${location}&startdt=${startDate}&enddt=${endDate}`;
 }

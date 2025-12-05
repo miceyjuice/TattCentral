@@ -38,4 +38,6 @@ export interface AppointmentEmailData {
 	time: string; // Formatted time string
 	duration: string; // e.g., "60 minutes"
 	appointmentId: string;
+	startTime: Date; // For calendar links
+	endTime: Date; // For calendar links
 }

@@ -58,6 +58,8 @@ function toEmailData(id: string, data: AppointmentData): AppointmentEmailData {
 		date: formatDate(data.startTime),
 		time: formatTime(data.startTime),
 		duration: calculateDuration(data.startTime, data.endTime),
+		startTime: data.startTime.toDate(),
+		endTime: data.endTime.toDate(),
 	};
 }
 
