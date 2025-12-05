@@ -14,6 +14,23 @@ interface BookingConfirmationState {
 	endTime: Date;
 }
 
+const STUDIO_NAME = "TattCentral";
+const STUDIO_LOCATION = "TattCentral Studio";
+
+/**
+ * Generates the event title for calendar entries
+ */
+function getEventTitle(serviceLabel: string): string {
+	return `${serviceLabel} - ${STUDIO_NAME}`;
+}
+
+/**
+ * Generates the event description for calendar entries
+ */
+function getEventDescription(artistName: string, serviceLabel: string): string {
+	return `Artist: ${artistName}\nService: ${serviceLabel}\n\nBooked via ${STUDIO_NAME}`;
+}
+
 /**
  * Generates a Google Calendar URL with pre-filled event details
  */
@@ -23,10 +40,10 @@ function generateGoogleCalendarUrl(data: BookingConfirmationState): string {
 
 	const params = new URLSearchParams({
 		action: "TEMPLATE",
-		text: `${data.serviceLabel} - TattCentral`,
+		text: getEventTitle(data.serviceLabel),
 		dates: `${startTimeStr}/${endTimeStr}`,
-		details: `Artist: ${data.artistName}\nService: ${data.serviceLabel}\n\nBooked via TattCentral`,
-		location: "TattCentral Studio",
+		details: getEventDescription(data.artistName, data.serviceLabel),
+		location: STUDIO_LOCATION,
 	});
 
 	return `https://calendar.google.com/calendar/render?${params.toString()}`;
@@ -42,11 +59,11 @@ function generateOutlookCalendarUrl(data: BookingConfirmationState): string {
 	const params = new URLSearchParams({
 		path: "/calendar/action/compose",
 		rru: "addevent",
-		subject: `${data.serviceLabel} - TattCentral`,
+		subject: getEventTitle(data.serviceLabel),
 		startdt: startTimeStr,
 		enddt: endTimeStr,
-		body: `Artist: ${data.artistName}\nService: ${data.serviceLabel}\n\nBooked via TattCentral`,
-		location: "TattCentral Studio",
+		body: getEventDescription(data.artistName, data.serviceLabel),
+		location: STUDIO_LOCATION,
 	});
 
 	return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
@@ -59,18 +76,20 @@ function generateIcsContent(data: BookingConfirmationState): string {
 	const startTimeStr = format(data.startTime, "yyyyMMdd'T'HHmmss");
 	const endTimeStr = format(data.endTime, "yyyyMMdd'T'HHmmss");
 	const now = format(new Date(), "yyyyMMdd'T'HHmmss");
+	// ICS format requires escaped newlines
+	const icsDescription = getEventDescription(data.artistName, data.serviceLabel).replace(/\n/g, "\\n");
 
 	return `BEGIN:VCALENDAR
             VERSION:2.0
-            PRODID:-//TattCentral//Booking//EN
+            PRODID:-//${STUDIO_NAME}//Booking//EN
             BEGIN:VEVENT
             UID:${data.appointmentId}@tattcentral.com
             DTSTAMP:${now}
             DTSTART:${startTimeStr}
             DTEND:${endTimeStr}
-            SUMMARY:${data.serviceLabel} - TattCentral
-            DESCRIPTION:Artist: ${data.artistName}\\nService: ${data.serviceLabel}\\n\\nBooked via TattCentral
-            LOCATION:TattCentral Studio
+            SUMMARY:${getEventTitle(data.serviceLabel)}
+            DESCRIPTION:${icsDescription}
+            LOCATION:${STUDIO_LOCATION}
             STATUS:TENTATIVE
             END:VEVENT
             END:VCALENDAR`;
