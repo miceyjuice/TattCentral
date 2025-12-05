@@ -79,20 +79,23 @@ function generateIcsContent(data: BookingConfirmationState): string {
 	// ICS format requires escaped newlines
 	const icsDescription = getEventDescription(data.artistName, data.serviceLabel).replace(/\n/g, "\\n");
 
-	return `BEGIN:VCALENDAR
-            VERSION:2.0
-            PRODID:-//${STUDIO_NAME}//Booking//EN
-            BEGIN:VEVENT
-            UID:${data.appointmentId}@tattcentral.com
-            DTSTAMP:${now}
-            DTSTART:${startTimeStr}
-            DTEND:${endTimeStr}
-            SUMMARY:${getEventTitle(data.serviceLabel)}
-            DESCRIPTION:${icsDescription}
-            LOCATION:${STUDIO_LOCATION}
-            STATUS:TENTATIVE
-            END:VEVENT
-            END:VCALENDAR`;
+	// ICS format requires no leading whitespace on lines
+	return [
+		"BEGIN:VCALENDAR",
+		"VERSION:2.0",
+		`PRODID:-//${STUDIO_NAME}//Booking//EN`,
+		"BEGIN:VEVENT",
+		`UID:${data.appointmentId}@tattcentral.com`,
+		`DTSTAMP:${now}`,
+		`DTSTART:${startTimeStr}`,
+		`DTEND:${endTimeStr}`,
+		`SUMMARY:${getEventTitle(data.serviceLabel)}`,
+		`DESCRIPTION:${icsDescription}`,
+		`LOCATION:${STUDIO_LOCATION}`,
+		"STATUS:TENTATIVE",
+		"END:VEVENT",
+		"END:VCALENDAR",
+	].join("\r\n");
 }
 
 function downloadIcsFile(data: BookingConfirmationState) {
