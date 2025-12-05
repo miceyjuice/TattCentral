@@ -17,8 +17,8 @@ const mockState = {
 	clientEmail: "anna@example.com",
 	artistName: "Jan Nowak",
 	serviceLabel: "Small Tattoo",
-	startTime: new Date("2025-12-15T10:00:00"),
-	endTime: new Date("2025-12-15T11:00:00"),
+	startTime: "2025-12-15T10:00:00",
+	endTime: "2025-12-15T11:00:00",
 };
 
 function renderWithState(state: typeof mockState | null) {

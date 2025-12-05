@@ -11,8 +11,8 @@ interface BookingConfirmationState {
 	clientEmail: string;
 	artistName: string;
 	serviceLabel: string;
-	startTime: Date;
-	endTime: Date;
+	startTime: string; // ISO string
+	endTime: string; // ISO string
 }
 
 const STUDIO_NAME = "TattCentral";
@@ -115,7 +115,7 @@ function downloadIcsFile(data: BookingConfirmationState) {
 	const url = URL.createObjectURL(blob);
 	const link = document.createElement("a");
 	link.href = url;
-	link.download = `tattcentral-appointment-${format(data.startTime, "yyyy-MM-dd")}.ics`;
+	link.download = `tattcentral-appointment-${format(new Date(data.startTime), "yyyy-MM-dd")}.ics`;
 	document.body.appendChild(link);
 	link.click();
 	document.body.removeChild(link);
@@ -132,7 +132,11 @@ export function BookingConfirmation() {
 		return <Navigate to="/booking" replace />;
 	}
 
-	const durationMinutes = Math.round((state.endTime.getTime() - state.startTime.getTime()) / 60000);
+	// Parse ISO strings back to Date objects
+	const startTime = new Date(state.startTime);
+	const endTime = new Date(state.endTime);
+
+	const durationMinutes = Math.round((endTime.getTime() - startTime.getTime()) / 60000);
 
 	return (
 		<div className="min-h-screen bg-[#0a0a0a]">
@@ -193,7 +197,7 @@ export function BookingConfirmation() {
 							<Calendar className="h-5 w-5 text-white/40" />
 							<div>
 								<p className="text-sm text-white/60">Date</p>
-								<p className="text-white">{format(state.startTime, "EEEE, d MMMM yyyy")}</p>
+								<p className="text-white">{format(startTime, "EEEE, d MMMM yyyy")}</p>
 							</div>
 						</div>
 
@@ -202,8 +206,7 @@ export function BookingConfirmation() {
 							<div>
 								<p className="text-sm text-white/60">Time</p>
 								<p className="text-white">
-									{format(state.startTime, "HH:mm")} - {format(state.endTime, "HH:mm")} (
-									{durationMinutes}m)
+									{format(startTime, "HH:mm")} - {format(endTime, "HH:mm")} ({durationMinutes}m)
 								</p>
 							</div>
 						</div>

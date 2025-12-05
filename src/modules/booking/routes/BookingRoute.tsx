@@ -190,6 +190,7 @@ export const BookingRoute = () => {
 			}
 
 			// Navigate to confirmation page with booking details
+			// Convert dates to ISO strings for serialization safety
 			navigate("/booking/confirmation", {
 				state: {
 					appointmentId,
@@ -197,8 +198,8 @@ export const BookingRoute = () => {
 					clientEmail: data.email,
 					artistName: finalArtistName,
 					serviceLabel: selectedService.label,
-					startTime: startDateTime,
-					endTime: endDateTime,
+					startTime: startDateTime.toISOString(),
+					endTime: endDateTime.toISOString(),
 				},
 			});
 		} catch (error) {
