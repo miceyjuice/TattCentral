@@ -5,6 +5,15 @@ import { bookingConfirmationHtml } from "../emails/templates";
 import { AppointmentData, AppointmentEmailData } from "../types";
 
 /**
+ * Validates email address format using RFC 5322 compliant regex
+ */
+function isValidEmail(email: string): boolean {
+	const emailRegex =
+		/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+	return emailRegex.test(email);
+}
+
+/**
  * Formats a Firestore Timestamp to a readable date string
  */
 function formatDate(timestamp: FirebaseFirestore.Timestamp): string {
@@ -95,7 +104,7 @@ export const onAppointmentCreated = onDocumentCreated(
 		}
 
 		// Validate email
-		if (!data.clientEmail || !data.clientEmail.includes("@")) {
+		if (!data.clientEmail || !isValidEmail(data.clientEmail)) {
 			logger.error("Invalid client email", { clientEmail: data.clientEmail });
 			return;
 		}
