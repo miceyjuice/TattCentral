@@ -229,7 +229,9 @@ export function BookingConfirmation() {
 						<Button
 							variant="outline"
 							className="border-white/20 bg-transparent text-white hover:bg-white/10"
-							onClick={() => window.open(generateGoogleCalendarUrl(state), "_blank")}
+							onClick={() =>
+								window.open(generateGoogleCalendarUrl(state), "_blank", "noopener,noreferrer")
+							}
 						>
 							<ExternalLink aria-hidden="true" className="mr-2 h-4 w-4" />
 							Google Calendar
@@ -238,7 +240,9 @@ export function BookingConfirmation() {
 						<Button
 							variant="outline"
 							className="border-white/20 bg-transparent text-white hover:bg-white/10"
-							onClick={() => window.open(generateOutlookCalendarUrl(state), "_blank")}
+							onClick={() =>
+								window.open(generateOutlookCalendarUrl(state), "_blank", "noopener,noreferrer")
+							}
 						>
 							<ExternalLink aria-hidden="true" className="mr-2 h-4 w-4" />
 							Outlook
