@@ -131,9 +131,9 @@ const styles = {
  */
 function appointmentDetailsHtml(data: AppointmentEmailData): string {
 	return `
-    <div style="${styles.detailsBox}">
+    <div style="${styles.detailsBox}" role="region" aria-label="Appointment Details">
       <p style="${styles.detailsTitle}">Appointment Details</p>
-      <table style="width: 100%; border-collapse: collapse;">
+      <table style="width: 100%; border-collapse: collapse;" role="presentation">
         <tr>
           <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Service</td>
           <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${data.serviceType}</td>
@@ -255,9 +255,9 @@ export function appointmentApprovedHtml(data: AppointmentEmailData): string {
           ${appointmentDetailsHtml(data)}
           
           <p style="color: #ffffff; font-size: 14px; margin: 24px 0 16px 0;">Add to your calendar:</p>
-          <div>
-            <a href="${googleCalendarUrl}" style="${styles.buttonOutline}" target="_blank">Google Calendar</a>
-            <a href="${outlookCalendarUrl}" style="${styles.buttonOutline}" target="_blank">Outlook</a>
+          <div role="group" aria-label="Calendar options">
+            <a href="${googleCalendarUrl}" style="${styles.buttonOutline}" target="_blank" rel="noopener noreferrer" aria-label="Add to Google Calendar">Google Calendar</a>
+            <a href="${outlookCalendarUrl}" style="${styles.buttonOutline}" target="_blank" rel="noopener noreferrer" aria-label="Add to Outlook Calendar">Outlook</a>
           </div>
           
           <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-top: 24px;">
@@ -376,9 +376,9 @@ export function appointmentRescheduledHtml(
             </p>
           </div>
           
-          <div style="${styles.detailsBox}">
+          <div style="${styles.detailsBox}" role="region" aria-label="Schedule Change">
             <p style="${styles.detailsTitle}">Schedule Change</p>
-            <table style="width: 100%; border-collapse: collapse;">
+            <table style="width: 100%; border-collapse: collapse;" role="presentation">
               <tr>
                 <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;"></td>
                 <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.4); font-size: 12px; text-align: center;">OLD</td>
@@ -400,9 +400,9 @@ export function appointmentRescheduledHtml(
           ${appointmentDetailsHtml(data)}
           
           <p style="color: #ffffff; font-size: 14px; margin: 24px 0 16px 0;">Update your calendar:</p>
-          <div>
-            <a href="${googleCalendarUrl}" style="${styles.buttonOutline}" target="_blank">Google Calendar</a>
-            <a href="${outlookCalendarUrl}" style="${styles.buttonOutline}" target="_blank">Outlook</a>
+          <div role="group" aria-label="Calendar options">
+            <a href="${googleCalendarUrl}" style="${styles.buttonOutline}" target="_blank" rel="noopener noreferrer" aria-label="Add to Google Calendar">Google Calendar</a>
+            <a href="${outlookCalendarUrl}" style="${styles.buttonOutline}" target="_blank" rel="noopener noreferrer" aria-label="Add to Outlook Calendar">Outlook</a>
           </div>
           
           <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-top: 24px;">
