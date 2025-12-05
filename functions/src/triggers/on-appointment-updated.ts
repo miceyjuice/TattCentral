@@ -152,12 +152,14 @@ export const onAppointmentUpdated = onDocumentUpdated(
 		const emailData = toEmailData(appointmentId, after);
 
 		// Check for status change
-		if (before.status !== after.status) {
+		const statusChanged = before.status !== after.status;
+		if (statusChanged) {
 			await sendStatusChangeEmail(appointmentId, before.status, after.status, emailData, after.clientEmail);
 		}
 
 		// Check for reschedule (time change) - only for upcoming appointments
-		if (after.status === "upcoming" && hasTimeChanged(before, after)) {
+		// Skip if status also changed to avoid sending two emails in the same update
+		if (!statusChanged && after.status === "upcoming" && hasTimeChanged(before, after)) {
 			await sendRescheduleEmail(appointmentId, before, after, emailData);
 		}
 	},
