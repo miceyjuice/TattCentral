@@ -231,7 +231,7 @@ export function BookingConfirmation() {
 							className="border-white/20 bg-transparent text-white hover:bg-white/10"
 							onClick={() => window.open(generateGoogleCalendarUrl(state), "_blank")}
 						>
-							<ExternalLink className="mr-2 h-4 w-4" />
+							<ExternalLink aria-hidden="true" className="mr-2 h-4 w-4" />
 							Google Calendar
 						</Button>
 
@@ -240,7 +240,7 @@ export function BookingConfirmation() {
 							className="border-white/20 bg-transparent text-white hover:bg-white/10"
 							onClick={() => window.open(generateOutlookCalendarUrl(state), "_blank")}
 						>
-							<ExternalLink className="mr-2 h-4 w-4" />
+							<ExternalLink aria-hidden="true" className="mr-2 h-4 w-4" />
 							Outlook
 						</Button>
 
@@ -249,7 +249,7 @@ export function BookingConfirmation() {
 							className="border-white/20 bg-transparent text-white hover:bg-white/10"
 							onClick={() => downloadIcsFile(state)}
 						>
-							<ExternalLink className="mr-2 h-4 w-4" />
+							<ExternalLink aria-hidden="true" className="mr-2 h-4 w-4" />
 							Apple Calendar (.ics)
 						</Button>
 					</div>
