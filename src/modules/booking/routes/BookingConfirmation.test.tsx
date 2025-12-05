@@ -186,4 +186,42 @@ describe("BookingConfirmation", () => {
 			expect(calledUrl).toContain("ctz=Europe%2FWarsaw");
 		});
 	});
+
+	describe("edge cases", () => {
+		it("handles popup blocker gracefully when window.open returns null", async () => {
+			mockWindowOpen.mockReturnValueOnce(null);
+			const user = userEvent.setup();
+			renderWithState(mockState);
+
+			// Should not throw when popup is blocked
+			await expect(user.click(screen.getByRole("button", { name: /Google Calendar/i }))).resolves.not.toThrow();
+
+			expect(mockWindowOpen).toHaveBeenCalledTimes(1);
+		});
+
+		it("throws error for invalid date strings", () => {
+			const invalidState = {
+				...mockState,
+				startTime: "invalid-date",
+				endTime: "also-invalid",
+			};
+
+			// date-fns format() throws RangeError for invalid dates
+			// This documents current behavior - invalid dates should be prevented
+			// at the source (BookingRoute) rather than handled here
+			expect(() => renderWithState(invalidState)).toThrow("Invalid time value");
+		});
+
+		it("still calls download function when ICS button is clicked", async () => {
+			const user = userEvent.setup();
+			renderWithState(mockState);
+
+			// The download function creates a blob and triggers download
+			// We verify the blob URL was created
+			await user.click(screen.getByRole("button", { name: /Apple Calendar/i }));
+
+			expect(mockCreateObjectURL).toHaveBeenCalledWith(expect.any(Blob));
+			expect(mockRevokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
+		});
+	});
 });
