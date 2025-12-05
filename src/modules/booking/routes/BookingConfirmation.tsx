@@ -146,7 +146,7 @@ export function BookingConfirmation() {
 				{/* Success Header */}
 				<div className="mb-8 text-center">
 					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
-						<CheckCircle className="ml-[1px] h-8 w-8 text-green-500" />
+						<CheckCircle aria-hidden="true" className="ml-[1px] h-8 w-8 text-green-500" />
 					</div>
 					<h1 className="text-3xl font-bold text-white">Booking Request Sent!</h1>
 					<p className="mt-2 text-white/60">
@@ -158,7 +158,7 @@ export function BookingConfirmation() {
 				<div className="mb-8 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4">
 					<div className="flex items-start gap-3">
 						<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-yellow-500/20">
-							<Mail className="h-3.5 w-3.5 text-yellow-500" />
+							<Mail aria-hidden="true" className="h-3.5 w-3.5 text-yellow-500" />
 						</div>
 						<div>
 							<h3 className="font-medium text-yellow-200">Check your email</h3>
@@ -178,7 +178,7 @@ export function BookingConfirmation() {
 
 					<div className="space-y-4">
 						<div className="flex items-center gap-3">
-							<User className="h-5 w-5 text-white/40" />
+							<User aria-hidden="true" className="h-5 w-5 text-white/40" />
 							<div>
 								<p className="text-sm text-white/60">Client</p>
 								<p className="text-white">{state.clientName}</p>
@@ -186,7 +186,7 @@ export function BookingConfirmation() {
 						</div>
 
 						<div className="flex items-center gap-3">
-							<User className="h-5 w-5 text-white/40" />
+							<User aria-hidden="true" className="h-5 w-5 text-white/40" />
 							<div>
 								<p className="text-sm text-white/60">Artist</p>
 								<p className="text-white">{state.artistName}</p>
@@ -194,7 +194,7 @@ export function BookingConfirmation() {
 						</div>
 
 						<div className="flex items-center gap-3">
-							<Calendar className="h-5 w-5 text-white/40" />
+							<Calendar aria-hidden="true" className="h-5 w-5 text-white/40" />
 							<div>
 								<p className="text-sm text-white/60">Date</p>
 								<p className="text-white">{format(startTime, "EEEE, d MMMM yyyy")}</p>
@@ -202,7 +202,7 @@ export function BookingConfirmation() {
 						</div>
 
 						<div className="flex items-center gap-3">
-							<Clock className="h-5 w-5 text-white/40" />
+							<Clock aria-hidden="true" className="h-5 w-5 text-white/40" />
 							<div>
 								<p className="text-sm text-white/60">Time</p>
 								<p className="text-white">
