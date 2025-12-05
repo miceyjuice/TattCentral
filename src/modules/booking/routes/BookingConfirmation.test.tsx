@@ -167,5 +167,15 @@ describe("BookingConfirmation", () => {
 			expect(calledUrl).toContain("TattCentral");
 			expect(calledUrl).toContain("Jan+Nowak");
 		});
+
+		it("includes timezone parameter in Google Calendar URL", async () => {
+			const user = userEvent.setup();
+			renderWithState(mockState);
+
+			await user.click(screen.getByRole("button", { name: /Google Calendar/i }));
+
+			const calledUrl = mockWindowOpen.mock.calls[0][0] as string;
+			expect(calledUrl).toContain("ctz=Europe%2FWarsaw");
+		});
 	});
 });

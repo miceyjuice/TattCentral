@@ -1,5 +1,6 @@
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { Calendar, Clock, User, Mail, CheckCircle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/Navigation";
@@ -16,6 +17,8 @@ interface BookingConfirmationState {
 
 const STUDIO_NAME = "TattCentral";
 const STUDIO_LOCATION = "TattCentral Studio";
+// Studio timezone - appointments are stored in this timezone
+const STUDIO_TIMEZONE = "Europe/Warsaw";
 
 /**
  * Generates the event title for calendar entries
@@ -33,10 +36,11 @@ function getEventDescription(artistName: string, serviceLabel: string): string {
 
 /**
  * Generates a Google Calendar URL with pre-filled event details
+ * Google Calendar accepts timezone parameter separately
  */
 function generateGoogleCalendarUrl(data: BookingConfirmationState): string {
-	const startTimeStr = format(data.startTime, "yyyyMMdd'T'HHmmss");
-	const endTimeStr = format(data.endTime, "yyyyMMdd'T'HHmmss");
+	const startTimeStr = formatInTimeZone(data.startTime, STUDIO_TIMEZONE, "yyyyMMdd'T'HHmmss");
+	const endTimeStr = formatInTimeZone(data.endTime, STUDIO_TIMEZONE, "yyyyMMdd'T'HHmmss");
 
 	const params = new URLSearchParams({
 		action: "TEMPLATE",
@@ -44,6 +48,7 @@ function generateGoogleCalendarUrl(data: BookingConfirmationState): string {
 		dates: `${startTimeStr}/${endTimeStr}`,
 		details: getEventDescription(data.artistName, data.serviceLabel),
 		location: STUDIO_LOCATION,
+		ctz: STUDIO_TIMEZONE,
 	});
 
 	return `https://calendar.google.com/calendar/render?${params.toString()}`;
@@ -51,10 +56,12 @@ function generateGoogleCalendarUrl(data: BookingConfirmationState): string {
 
 /**
  * Generates an Outlook Calendar URL with pre-filled event details
+ * Outlook uses ISO format with timezone info
  */
 function generateOutlookCalendarUrl(data: BookingConfirmationState): string {
-	const startTimeStr = format(data.startTime, "yyyy-MM-dd'T'HH:mm:ss");
-	const endTimeStr = format(data.endTime, "yyyy-MM-dd'T'HH:mm:ss");
+	// Outlook expects ISO format; we include timezone offset
+	const startTimeStr = formatInTimeZone(data.startTime, STUDIO_TIMEZONE, "yyyy-MM-dd'T'HH:mm:ssXXX");
+	const endTimeStr = formatInTimeZone(data.endTime, STUDIO_TIMEZONE, "yyyy-MM-dd'T'HH:mm:ssXXX");
 
 	const params = new URLSearchParams({
 		path: "/calendar/action/compose",
@@ -71,24 +78,28 @@ function generateOutlookCalendarUrl(data: BookingConfirmationState): string {
 
 /**
  * Generates an .ics file content for Apple Calendar and other calendar apps
+ * ICS format supports VTIMEZONE component or TZID parameter for timezone info
  */
 function generateIcsContent(data: BookingConfirmationState): string {
-	const startTimeStr = format(data.startTime, "yyyyMMdd'T'HHmmss");
-	const endTimeStr = format(data.endTime, "yyyyMMdd'T'HHmmss");
-	const now = format(new Date(), "yyyyMMdd'T'HHmmss");
+	const startTimeStr = formatInTimeZone(data.startTime, STUDIO_TIMEZONE, "yyyyMMdd'T'HHmmss");
+	const endTimeStr = formatInTimeZone(data.endTime, STUDIO_TIMEZONE, "yyyyMMdd'T'HHmmss");
+	const now = formatInTimeZone(new Date(), STUDIO_TIMEZONE, "yyyyMMdd'T'HHmmss");
 	// ICS format requires escaped newlines
 	const icsDescription = getEventDescription(data.artistName, data.serviceLabel).replace(/\n/g, "\\n");
 
 	// ICS format requires no leading whitespace on lines
+	// Using TZID parameter to specify timezone for start/end times
 	return [
 		"BEGIN:VCALENDAR",
 		"VERSION:2.0",
 		`PRODID:-//${STUDIO_NAME}//Booking//EN`,
+		"CALSCALE:GREGORIAN",
+		"METHOD:PUBLISH",
 		"BEGIN:VEVENT",
 		`UID:${data.appointmentId}@tattcentral.com`,
 		`DTSTAMP:${now}`,
-		`DTSTART:${startTimeStr}`,
-		`DTEND:${endTimeStr}`,
+		`DTSTART;TZID=${STUDIO_TIMEZONE}:${startTimeStr}`,
+		`DTEND;TZID=${STUDIO_TIMEZONE}:${endTimeStr}`,
 		`SUMMARY:${getEventTitle(data.serviceLabel)}`,
 		`DESCRIPTION:${icsDescription}`,
 		`LOCATION:${STUDIO_LOCATION}`,
