@@ -54,9 +54,21 @@ export function calculateDuration(
 }
 
 /**
- * Transforms Firestore appointment data to email template data
+ * App URL for generating links (defaults to production URL)
  */
-export function toEmailData(id: string, data: AppointmentData): AppointmentEmailData {
+const APP_URL = process.env.APP_URL || "https://tattcentral.web.app";
+
+/**
+ * Transforms Firestore appointment data to email template data
+ * @param id - Appointment document ID
+ * @param data - Appointment data from Firestore
+ * @param cancellationToken - Optional token for cancellation link
+ */
+export function toEmailData(
+	id: string,
+	data: AppointmentData,
+	cancellationToken?: string,
+): AppointmentEmailData {
 	return {
 		appointmentId: id,
 		clientName: data.clientName,
@@ -68,5 +80,8 @@ export function toEmailData(id: string, data: AppointmentData): AppointmentEmail
 		duration: calculateDuration(data.startTime, data.endTime),
 		startTime: data.startTime.toDate(),
 		endTime: data.endTime.toDate(),
+		cancellationUrl: cancellationToken
+			? `${APP_URL}/cancel/${id}?token=${cancellationToken}`
+			: undefined,
 	};
 }

@@ -22,6 +22,7 @@ export interface AppointmentData {
 	imageUrl?: string;
 	referenceImageUrls?: string[];
 	referenceImagePaths?: string[];
+	cancellationToken?: string;
 	createdAt: FirebaseFirestore.Timestamp;
 	updatedAt: FirebaseFirestore.Timestamp;
 }
@@ -40,4 +41,5 @@ export interface AppointmentEmailData {
 	appointmentId: string;
 	startTime: Date; // For calendar links
 	endTime: Date; // For calendar links
+	cancellationUrl?: string; // URL for client self-cancellation
 }

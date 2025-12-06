@@ -16,6 +16,7 @@ export type AppointmentDocument = {
 	imageUrl: string;
 	referenceImageUrls?: string[];
 	referenceImagePaths?: string[]; // Storage paths for deletion
+	cancellationToken?: string; // Secure token for client self-cancellation
 	rating?: number;
 };
 

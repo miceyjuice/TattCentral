@@ -1,5 +1,7 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
+import { getFirestore } from "firebase-admin/firestore";
+import { randomUUID } from "crypto";
 import { sendEmail } from "../services/email-service";
 import { bookingConfirmationHtml } from "../emails/templates";
 import { AppointmentData } from "../types";
@@ -7,7 +9,7 @@ import { isValidEmail, toEmailData } from "../utils/appointment-helpers";
 
 /**
  * Triggered when a new appointment document is created
- * Sends a booking confirmation email to the client
+ * Generates a cancellation token and sends a booking confirmation email
  */
 export const onAppointmentCreated = onDocumentCreated(
 	{
@@ -30,6 +32,21 @@ export const onAppointmentCreated = onDocumentCreated(
 			status: data.status,
 		});
 
+		// Generate cancellation token if not already present
+		let cancellationToken = data.cancellationToken;
+		if (!cancellationToken) {
+			cancellationToken = randomUUID();
+			try {
+				await getFirestore().collection("appointments").doc(appointmentId).update({
+					cancellationToken,
+				});
+				logger.info("Generated cancellation token", { appointmentId });
+			} catch (error) {
+				logger.error("Failed to store cancellation token", { appointmentId, error });
+				// Continue with email - token generation failure shouldn't block the email
+			}
+		}
+
 		// Only send confirmation email for pending appointments
 		if (data.status !== "pending") {
 			logger.info("Skipping email - appointment is not pending", { status: data.status });
@@ -42,8 +59,8 @@ export const onAppointmentCreated = onDocumentCreated(
 			return;
 		}
 
-		// Prepare email data
-		const emailData = toEmailData(appointmentId, data);
+		// Prepare email data with cancellation token
+		const emailData = toEmailData(appointmentId, data, cancellationToken);
 
 		// Send booking confirmation email
 		const result = await sendEmail({

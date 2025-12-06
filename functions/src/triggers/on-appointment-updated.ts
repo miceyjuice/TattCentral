@@ -149,7 +149,7 @@ export const onAppointmentUpdated = onDocumentUpdated(
 			return;
 		}
 
-		const emailData = toEmailData(appointmentId, after);
+		const emailData = toEmailData(appointmentId, after, after.cancellationToken);
 
 		// Check for status change
 		const statusChanged = before.status !== after.status;
