@@ -458,12 +458,13 @@ export function appointmentRescheduledHtml(
 
 /**
  * Formats a Date to Google Calendar format: YYYYMMDDTHHMMSSZ
+ * Converts ISO string (2024-01-15T14:00:00.000Z) to (20240115T140000Z)
  */
 function formatDateForCalendar(date: Date): string {
 	return date
 		.toISOString()
-		.replace(/[-:]/g, "")
-		.replace(/\.\d{3}/, "");
+		.replace(/[-:]/g, "") // Remove dashes and colons
+		.replace(/\.\d{3}Z$/, "Z"); // Remove milliseconds, keep Z
 }
 
 /**
