@@ -1,6 +1,36 @@
 import { AppointmentEmailData } from "../types";
 
 /**
+ * Escapes HTML special characters to prevent XSS attacks
+ * @param unsafe - The potentially unsafe string to escape
+ * @returns HTML-safe string
+ */
+export function escapeHtml(unsafe: string): string {
+	return unsafe
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#039;");
+}
+
+/**
+ * Sanitizes all user-provided fields in email data
+ */
+function sanitizeEmailData(data: AppointmentEmailData): AppointmentEmailData {
+	return {
+		...data,
+		clientName: escapeHtml(data.clientName),
+		clientEmail: escapeHtml(data.clientEmail),
+		artistName: escapeHtml(data.artistName),
+		serviceType: escapeHtml(data.serviceType),
+		date: escapeHtml(data.date),
+		time: escapeHtml(data.time),
+		duration: escapeHtml(data.duration),
+	};
+}
+
+/**
  * Common email styles
  */
 const styles = {
@@ -130,29 +160,30 @@ const styles = {
  * Generates the appointment details HTML block
  */
 function appointmentDetailsHtml(data: AppointmentEmailData): string {
+	const safe = sanitizeEmailData(data);
 	return `
     <div style="${styles.detailsBox}" role="region" aria-label="Appointment Details">
       <p style="${styles.detailsTitle}">Appointment Details</p>
       <table style="width: 100%; border-collapse: collapse;" role="presentation">
         <tr>
           <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Service</td>
-          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${data.serviceType}</td>
+          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${safe.serviceType}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Artist</td>
-          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${data.artistName}</td>
+          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${safe.artistName}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Date</td>
-          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${data.date}</td>
+          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${safe.date}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Time</td>
-          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${data.time}</td>
+          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${safe.time}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Duration</td>
-          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${data.duration}</td>
+          <td style="padding: 8px 0; color: #ffffff; font-size: 14px; text-align: right;">${safe.duration}</td>
         </tr>
       </table>
     </div>
@@ -188,6 +219,7 @@ function footerHtml(): string {
  * Booking confirmation email (pending status)
  */
 export function bookingConfirmationHtml(data: AppointmentEmailData): string {
+	const safeData = sanitizeEmailData(data);
 	return `
     <!DOCTYPE html>
     <html>
@@ -200,7 +232,7 @@ export function bookingConfirmationHtml(data: AppointmentEmailData): string {
         ${headerHtml()}
         <div style="${styles.content}">
           <h1 style="${styles.title}">Booking Request Received!</h1>
-          <p style="${styles.subtitle}">Hi ${data.clientName}, thank you for your booking request.</p>
+          <p style="${styles.subtitle}">Hi ${safeData.clientName}, thank you for your booking request.</p>
           
           <div style="${styles.noticeBox("rgba(234, 179, 8, 0.3)", "rgba(234, 179, 8, 0.1)")}">
             <p style="${styles.noticeTitle("#fef08a")}">Pending Approval</p>
@@ -210,7 +242,7 @@ export function bookingConfirmationHtml(data: AppointmentEmailData): string {
             </p>
           </div>
           
-          ${appointmentDetailsHtml(data)}
+          ${appointmentDetailsHtml(safeData)}
           
           <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-top: 24px;">
             If you have any questions, feel free to contact us.
@@ -227,7 +259,8 @@ export function bookingConfirmationHtml(data: AppointmentEmailData): string {
  * Appointment approved email
  */
 export function appointmentApprovedHtml(data: AppointmentEmailData): string {
-	// Generate Add to Calendar URLs
+	const safeData = sanitizeEmailData(data);
+	// Generate Add to Calendar URLs (use original data for URLs as they need raw dates)
 	const googleCalendarUrl = generateGoogleCalendarUrl(data);
 	const outlookCalendarUrl = generateOutlookCalendarUrl(data);
 
@@ -243,7 +276,7 @@ export function appointmentApprovedHtml(data: AppointmentEmailData): string {
         ${headerHtml()}
         <div style="${styles.content}">
           <h1 style="${styles.title}">Your Appointment is Confirmed! ✓</h1>
-          <p style="${styles.subtitle}">Hi ${data.clientName}, great news! Your appointment has been approved.</p>
+          <p style="${styles.subtitle}">Hi ${safeData.clientName}, great news! Your appointment has been approved.</p>
           
           <div style="${styles.noticeBox("rgba(34, 197, 94, 0.3)", "rgba(34, 197, 94, 0.1)")}">
             <p style="${styles.noticeTitle("#86efac")}">Confirmed</p>
@@ -252,7 +285,7 @@ export function appointmentApprovedHtml(data: AppointmentEmailData): string {
             </p>
           </div>
           
-          ${appointmentDetailsHtml(data)}
+          ${appointmentDetailsHtml(safeData)}
           
           <p style="color: #ffffff; font-size: 14px; margin: 24px 0 16px 0;">Add to your calendar:</p>
           <div role="group" aria-label="Calendar options">
@@ -275,6 +308,7 @@ export function appointmentApprovedHtml(data: AppointmentEmailData): string {
  * Appointment declined email
  */
 export function appointmentDeclinedHtml(data: AppointmentEmailData): string {
+	const safeData = sanitizeEmailData(data);
 	return `
     <!DOCTYPE html>
     <html>
@@ -287,7 +321,7 @@ export function appointmentDeclinedHtml(data: AppointmentEmailData): string {
         ${headerHtml()}
         <div style="${styles.content}">
           <h1 style="${styles.title}">Booking Update</h1>
-          <p style="${styles.subtitle}">Hi ${data.clientName}, we have an update about your booking request.</p>
+          <p style="${styles.subtitle}">Hi ${safeData.clientName}, we have an update about your booking request.</p>
           
           <div style="${styles.noticeBox("rgba(239, 68, 68, 0.3)", "rgba(239, 68, 68, 0.1)")}">
             <p style="${styles.noticeTitle("#fca5a5")}">Unable to Accommodate</p>
@@ -298,7 +332,7 @@ export function appointmentDeclinedHtml(data: AppointmentEmailData): string {
           </div>
           
           <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-bottom: 8px;">Original request:</p>
-          ${appointmentDetailsHtml(data)}
+          ${appointmentDetailsHtml(safeData)}
           
           <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-top: 24px;">
             We'd love to find a time that works for you. Please feel free to book another appointment
@@ -316,6 +350,7 @@ export function appointmentDeclinedHtml(data: AppointmentEmailData): string {
  * Appointment cancelled email
  */
 export function appointmentCancelledHtml(data: AppointmentEmailData): string {
+	const safe = sanitizeEmailData(data);
 	return `
     <!DOCTYPE html>
     <html>
@@ -328,7 +363,7 @@ export function appointmentCancelledHtml(data: AppointmentEmailData): string {
         ${headerHtml()}
         <div style="${styles.content}">
           <h1 style="${styles.title}">Appointment Cancelled</h1>
-          <p style="${styles.subtitle}">Hi ${data.clientName}, your appointment has been cancelled.</p>
+          <p style="${styles.subtitle}">Hi ${safe.clientName}, your appointment has been cancelled.</p>
           
           <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-bottom: 8px;">Cancelled appointment:</p>
           ${appointmentDetailsHtml(data)}
@@ -352,6 +387,11 @@ export function appointmentRescheduledHtml(
 	data: AppointmentEmailData,
 	oldData: { date: string; time: string },
 ): string {
+	const safe = sanitizeEmailData(data);
+	const safeOld = {
+		date: escapeHtml(oldData.date),
+		time: escapeHtml(oldData.time),
+	};
 	const googleCalendarUrl = generateGoogleCalendarUrl(data);
 	const outlookCalendarUrl = generateOutlookCalendarUrl(data);
 
@@ -367,12 +407,12 @@ export function appointmentRescheduledHtml(
         ${headerHtml()}
         <div style="${styles.content}">
           <h1 style="${styles.title}">Appointment Rescheduled</h1>
-          <p style="${styles.subtitle}">Hi ${data.clientName}, your appointment has been rescheduled.</p>
+          <p style="${styles.subtitle}">Hi ${safe.clientName}, your appointment has been rescheduled.</p>
           
           <div style="${styles.noticeBox("rgba(59, 130, 246, 0.3)", "rgba(59, 130, 246, 0.1)")}">
             <p style="${styles.noticeTitle("#93c5fd")}">New Date & Time</p>
             <p style="${styles.noticeText("#93c5fd")}">
-              <strong>${data.date}</strong> at <strong>${data.time}</strong>
+              <strong>${safe.date}</strong> at <strong>${safe.time}</strong>
             </p>
           </div>
           
@@ -386,13 +426,13 @@ export function appointmentRescheduledHtml(
               </tr>
               <tr>
                 <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Date</td>
-                <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.4); font-size: 14px; text-align: center; text-decoration: line-through;">${oldData.date}</td>
-                <td style="padding: 8px 0; color: #22c55e; font-size: 14px; text-align: center; font-weight: 500;">${data.date}</td>
+                <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.4); font-size: 14px; text-align: center; text-decoration: line-through;">${safeOld.date}</td>
+                <td style="padding: 8px 0; color: #22c55e; font-size: 14px; text-align: center; font-weight: 500;">${safe.date}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.6); font-size: 14px;">Time</td>
-                <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.4); font-size: 14px; text-align: center; text-decoration: line-through;">${oldData.time}</td>
-                <td style="padding: 8px 0; color: #22c55e; font-size: 14px; text-align: center; font-weight: 500;">${data.time}</td>
+                <td style="padding: 8px 0; color: rgba(255, 255, 255, 0.4); font-size: 14px; text-align: center; text-decoration: line-through;">${safeOld.time}</td>
+                <td style="padding: 8px 0; color: #22c55e; font-size: 14px; text-align: center; font-weight: 500;">${safe.time}</td>
               </tr>
             </table>
           </div>

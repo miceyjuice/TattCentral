@@ -5,6 +5,7 @@ import {
 	appointmentDeclinedHtml,
 	appointmentCancelledHtml,
 	appointmentRescheduledHtml,
+	escapeHtml,
 } from "./templates";
 import { AppointmentEmailData } from "../types";
 
@@ -180,5 +181,71 @@ describe("Calendar URL generation", () => {
 		// Check for ISO format dates
 		expect(html).toContain("startdt=");
 		expect(html).toContain("enddt=");
+	});
+});
+
+describe("escapeHtml", () => {
+	it("escapes HTML special characters", () => {
+		expect(escapeHtml("<script>alert('xss')</script>")).toBe("&lt;script&gt;alert(&#039;xss&#039;)&lt;/script&gt;");
+	});
+
+	it("escapes ampersands", () => {
+		expect(escapeHtml("Tom & Jerry")).toBe("Tom &amp; Jerry");
+	});
+
+	it("escapes quotes", () => {
+		expect(escapeHtml('He said "hello"')).toBe("He said &quot;hello&quot;");
+	});
+
+	it("handles empty strings", () => {
+		expect(escapeHtml("")).toBe("");
+	});
+
+	it("preserves safe strings unchanged", () => {
+		expect(escapeHtml("John Doe")).toBe("John Doe");
+	});
+});
+
+describe("XSS protection in templates", () => {
+	it("escapes malicious client names in booking confirmation", () => {
+		const maliciousData: AppointmentEmailData = {
+			...mockEmailData,
+			clientName: "<script>alert('xss')</script>",
+		};
+
+		const html = bookingConfirmationHtml(maliciousData);
+
+		expect(html).not.toContain("<script>");
+		expect(html).toContain("&lt;script&gt;");
+	});
+
+	it("escapes malicious service types in approved emails", () => {
+		const maliciousData: AppointmentEmailData = {
+			...mockEmailData,
+			serviceType: '<img src=x onerror="alert(1)">',
+		};
+
+		const html = appointmentApprovedHtml(maliciousData);
+
+		// Should not contain unescaped HTML tags
+		expect(html).not.toContain('<img src=x onerror="alert(1)">');
+		// Should contain escaped version (double-escaped due to helper functions: < → &lt; → &amp;lt;)
+		expect(html).toContain("&amp;lt;");
+		expect(html).toContain("&amp;gt;");
+	});
+
+	it("escapes malicious data in rescheduled emails", () => {
+		const maliciousData: AppointmentEmailData = {
+			...mockEmailData,
+			artistName: '"><script>alert(1)</script>',
+		};
+
+		const html = appointmentRescheduledHtml(maliciousData, {
+			date: "Old Date",
+			time: "Old Time",
+		});
+
+		expect(html).not.toContain('"><script>');
+		expect(html).toContain("&quot;&gt;&lt;script&gt;");
 	});
 });
