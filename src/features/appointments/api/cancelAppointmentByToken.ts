@@ -16,9 +16,7 @@ export type CancelAppointmentError =
 /**
  * Result of cancellation attempt
  */
-export type CancelAppointmentResult =
-	| { success: true }
-	| { success: false; error: CancelAppointmentError };
+export type CancelAppointmentResult = { success: true } | { success: false; error: CancelAppointmentError };
 
 /**
  * Appointment data returned for the cancel page
@@ -77,10 +75,7 @@ const MIN_HOURS_BEFORE_CANCEL = 24;
  * Cancels an appointment using the cancellation token.
  * Validates token, checks time restrictions, and updates status.
  */
-export async function cancelAppointmentByToken(
-	appointmentId: string,
-	token: string,
-): Promise<CancelAppointmentResult> {
+export async function cancelAppointmentByToken(appointmentId: string, token: string): Promise<CancelAppointmentResult> {
 	const appointmentRef = doc(db, "appointments", appointmentId);
 	const appointmentSnap = await getDoc(appointmentRef);
 

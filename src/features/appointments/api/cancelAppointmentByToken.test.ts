@@ -1,9 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import {
-	cancelAppointmentByToken,
-	getAppointmentForCancel,
-} from "./cancelAppointmentByToken";
+import { cancelAppointmentByToken, getAppointmentForCancel } from "./cancelAppointmentByToken";
 
 // Mock firebase/firestore
 vi.mock("firebase/firestore", () => ({
@@ -87,9 +84,7 @@ describe("getAppointmentForCancel", () => {
 	});
 
 	it("returns INVALID_TOKEN error when appointment has no token", async () => {
-		mockGetDoc.mockResolvedValue(
-			createMockAppointment({ cancellationToken: undefined }) as never,
-		);
+		mockGetDoc.mockResolvedValue(createMockAppointment({ cancellationToken: undefined }) as never);
 
 		const result = await getAppointmentForCancel("appointment-123", "any-token");
 
@@ -145,9 +140,7 @@ describe("cancelAppointmentByToken", () => {
 	});
 
 	it("returns ALREADY_CANCELLED error for cancelled appointment", async () => {
-		mockGetDoc.mockResolvedValue(
-			createMockAppointment({ status: "cancelled" }) as never,
-		);
+		mockGetDoc.mockResolvedValue(createMockAppointment({ status: "cancelled" }) as never);
 
 		const result = await cancelAppointmentByToken("appointment-123", "valid-token-123");
 
@@ -159,9 +152,7 @@ describe("cancelAppointmentByToken", () => {
 	});
 
 	it("returns ALREADY_COMPLETED error for completed appointment", async () => {
-		mockGetDoc.mockResolvedValue(
-			createMockAppointment({ status: "completed" }) as never,
-		);
+		mockGetDoc.mockResolvedValue(createMockAppointment({ status: "completed" }) as never);
 
 		const result = await cancelAppointmentByToken("appointment-123", "valid-token-123");
 
@@ -220,9 +211,7 @@ describe("cancelAppointmentByToken", () => {
 	});
 
 	it("validates pending appointments can be cancelled", async () => {
-		mockGetDoc.mockResolvedValue(
-			createMockAppointment({ status: "pending" }) as never,
-		);
+		mockGetDoc.mockResolvedValue(createMockAppointment({ status: "pending" }) as never);
 		mockUpdateDoc.mockResolvedValue(undefined);
 
 		const result = await cancelAppointmentByToken("appointment-123", "valid-token-123");

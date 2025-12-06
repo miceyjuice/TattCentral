@@ -93,11 +93,7 @@ export function CancelAppointmentPage() {
 	const [searchParams] = useSearchParams();
 	const token = searchParams.get("token") ?? "";
 
-	const {
-		data: appointment,
-		isLoading,
-		error: fetchError,
-	} = useAppointmentForCancel(appointmentId ?? "", token);
+	const { data: appointment, isLoading, error: fetchError } = useAppointmentForCancel(appointmentId ?? "", token);
 
 	const cancelMutation = useCancelAppointmentByToken(appointmentId ?? "", token);
 
@@ -174,9 +170,7 @@ export function CancelAppointmentPage() {
 	}
 
 	// Calculate duration
-	const durationMinutes = Math.round(
-		(appointment.endTime.getTime() - appointment.startTime.getTime()) / 60000,
-	);
+	const durationMinutes = Math.round((appointment.endTime.getTime() - appointment.startTime.getTime()) / 60000);
 
 	// Main cancellation form
 	return (
@@ -195,7 +189,7 @@ export function CancelAppointmentPage() {
 
 				{/* Appointment Details Card */}
 				<div className="mb-8 rounded-xl border border-white/10 bg-white/5 p-6">
-					<h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-white/40">
+					<h2 className="mb-4 text-sm font-medium tracking-wider text-white/40 uppercase">
 						Appointment Details
 					</h2>
 
@@ -248,8 +242,8 @@ export function CancelAppointmentPage() {
 						<div>
 							<p className="font-medium text-red-400">This action cannot be undone</p>
 							<p className="mt-1 text-sm text-red-400/80">
-								If you cancel, you will need to book a new appointment. Cancellations must be made
-								at least 24 hours before the scheduled time.
+								If you cancel, you will need to book a new appointment. Cancellations must be made at
+								least 24 hours before the scheduled time.
 							</p>
 						</div>
 					</div>
