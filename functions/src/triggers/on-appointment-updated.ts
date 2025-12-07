@@ -1,14 +1,14 @@
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
-import { sendEmail } from "../services/email-service";
+import { sendEmail } from "../services/email-service.js";
 import {
 	appointmentApprovedHtml,
 	appointmentDeclinedHtml,
 	appointmentCancelledHtml,
 	appointmentRescheduledHtml,
-} from "../emails/templates";
-import { AppointmentData, AppointmentEmailData, AppointmentStatus } from "../types";
-import { isValidEmail, toEmailData, formatDate, formatTime } from "../utils/appointment-helpers";
+} from "../emails/templates.js";
+import { AppointmentData, AppointmentEmailData, AppointmentStatus } from "../types/index.js";
+import { isValidEmail, toEmailData, formatDate, formatTime } from "../utils/appointment-helpers.js";
 
 /**
  * Checks if the appointment times have changed (rescheduled)

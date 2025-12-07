@@ -2,10 +2,10 @@ import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import { getFirestore } from "firebase-admin/firestore";
 import { randomUUID } from "crypto";
-import { sendEmail } from "../services/email-service";
-import { bookingConfirmationHtml } from "../emails/templates";
-import { AppointmentData } from "../types";
-import { isValidEmail, toEmailData } from "../utils/appointment-helpers";
+import { sendEmail } from "../services/email-service.js";
+import { bookingConfirmationHtml } from "../emails/templates.js";
+import { AppointmentData } from "../types/index.js";
+import { isValidEmail, toEmailData } from "../utils/appointment-helpers.js";
 
 /**
  * Triggered when a new appointment document is created

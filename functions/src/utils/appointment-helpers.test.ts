@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isValidEmail } from "./appointment-helpers";
+import { isValidEmail } from "./appointment-helpers.js";
 
 describe("isValidEmail", () => {
 	it("accepts valid email addresses", () => {

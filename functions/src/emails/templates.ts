@@ -1,4 +1,4 @@
-import { AppointmentEmailData } from "../types";
+import { AppointmentEmailData } from "../types/index.js";
 
 /**
  * Escapes HTML special characters to prevent XSS attacks

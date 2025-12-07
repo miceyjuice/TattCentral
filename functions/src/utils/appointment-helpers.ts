@@ -1,4 +1,4 @@
-import { AppointmentData, AppointmentEmailData } from "../types";
+import { AppointmentData, AppointmentEmailData } from "../types/index.js";
 
 /**
  * Validates email address format using RFC 5322 compliant regex
