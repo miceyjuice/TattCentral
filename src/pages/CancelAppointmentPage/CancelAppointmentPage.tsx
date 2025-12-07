@@ -2,7 +2,6 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Calendar, Clock, User, AlertTriangle, XCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Navigation } from "@/components/Navigation";
 import {
 	useAppointmentForCancel,
 	useCancelAppointmentByToken,
@@ -56,7 +55,7 @@ function ErrorState({ error }: { error: string }) {
 			<h1 className="text-2xl font-bold text-white">Unable to Cancel</h1>
 			<p className="mt-2 max-w-md text-white/60">{getErrorMessage(error)}</p>
 			<Button className="mt-6" variant="outline" onClick={() => navigate("/booking")}>
-				Book a New Appointment
+				Book a new appointment
 			</Button>
 		</div>
 	);
@@ -77,8 +76,8 @@ function SuccessState() {
 			<p className="mt-2 max-w-md text-white/60">
 				Your appointment has been successfully cancelled. You will receive a confirmation email shortly.
 			</p>
-			<Button className="mt-6" onClick={() => navigate("/booking")}>
-				Book Another Appointment
+			<Button className="mt-6" onClick={() => navigate("/")}>
+				Go to Homepage
 			</Button>
 		</div>
 	);
@@ -101,7 +100,6 @@ export function CancelAppointmentPage() {
 	if (!appointmentId || !token) {
 		return (
 			<div className="min-h-screen bg-[#0a0a0a]">
-				<Navigation />
 				<main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
 					<ErrorState error="INVALID_TOKEN" />
 				</main>
@@ -113,9 +111,20 @@ export function CancelAppointmentPage() {
 	if (isLoading) {
 		return (
 			<div className="min-h-screen bg-[#0a0a0a]">
-				<Navigation />
 				<main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
 					<LoadingState />
+				</main>
+			</div>
+		);
+	}
+
+	// Cancellation successful - check this BEFORE error states
+	// to prevent brief error flash after successful cancellation
+	if (cancelMutation.isSuccess) {
+		return (
+			<div className="min-h-screen bg-[#0a0a0a]">
+				<main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
+					<SuccessState />
 				</main>
 			</div>
 		);
@@ -125,8 +134,7 @@ export function CancelAppointmentPage() {
 	if (fetchError) {
 		return (
 			<div className="min-h-screen bg-[#0a0a0a]">
-				<Navigation />
-				<main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
+				<main className="mx-auto h-full max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
 					<ErrorState error={fetchError.message} />
 				</main>
 			</div>
@@ -137,7 +145,6 @@ export function CancelAppointmentPage() {
 	if (!appointment) {
 		return (
 			<div className="min-h-screen bg-[#0a0a0a]">
-				<Navigation />
 				<main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
 					<ErrorState error="NOT_FOUND" />
 				</main>
@@ -149,21 +156,8 @@ export function CancelAppointmentPage() {
 	if (appointment.status === "cancelled") {
 		return (
 			<div className="min-h-screen bg-[#0a0a0a]">
-				<Navigation />
 				<main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
 					<ErrorState error="ALREADY_CANCELLED" />
-				</main>
-			</div>
-		);
-	}
-
-	// Cancellation successful
-	if (cancelMutation.isSuccess) {
-		return (
-			<div className="min-h-screen bg-[#0a0a0a]">
-				<Navigation />
-				<main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
-					<SuccessState />
 				</main>
 			</div>
 		);
@@ -175,8 +169,6 @@ export function CancelAppointmentPage() {
 	// Main cancellation form
 	return (
 		<div className="min-h-screen bg-[#0a0a0a]">
-			<Navigation />
-
 			<main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
 				{/* Header */}
 				<div className="mb-8 text-center">

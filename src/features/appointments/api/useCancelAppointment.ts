@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
 	getAppointmentForCancel,
 	cancelAppointmentByToken,
@@ -28,8 +28,6 @@ export function useAppointmentForCancel(appointmentId: string, token: string) {
  * Hook to cancel an appointment by token
  */
 export function useCancelAppointmentByToken(appointmentId: string, token: string) {
-	const queryClient = useQueryClient();
-
 	return useMutation({
 		mutationFn: async () => {
 			const result = await cancelAppointmentByToken(appointmentId, token);
@@ -37,10 +35,6 @@ export function useCancelAppointmentByToken(appointmentId: string, token: string
 				throw new Error(result.error);
 			}
 			return result;
-		},
-		onSuccess: () => {
-			// Invalidate the cancel page query to refetch updated status
-			queryClient.invalidateQueries({ queryKey: ["appointment-cancel", appointmentId, token] });
 		},
 	});
 }
