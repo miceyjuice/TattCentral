@@ -23,10 +23,7 @@ function PortfolioGallery({ images }: { images: { id: string; url: string; capti
 	return (
 		<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{images.map((image) => (
-				<div
-					key={image.id}
-					className="group relative aspect-square overflow-hidden rounded-lg bg-[#1a1a1a]"
-				>
+				<div key={image.id} className="group relative aspect-square overflow-hidden rounded-lg bg-[#1a1a1a]">
 					<img
 						src={image.url}
 						alt={image.caption || "Portfolio work"}
@@ -172,9 +169,7 @@ export function ArtistProfilePage() {
 							<h2 className="mb-4 text-lg font-medium text-white">
 								Portfolio
 								{artist.portfolioImages && artist.portfolioImages.length > 0 && (
-									<span className="ml-2 text-white/50">
-										({artist.portfolioImages.length})
-									</span>
+									<span className="ml-2 text-white/50">({artist.portfolioImages.length})</span>
 								)}
 							</h2>
 							<PortfolioGallery images={artist.portfolioImages ?? []} />

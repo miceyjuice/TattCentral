@@ -70,9 +70,7 @@ export function ArtistsPage() {
 				{/* Header */}
 				<div className="mb-10 text-center">
 					<h1 className="text-3xl font-bold text-white sm:text-4xl">Our Artists</h1>
-					<p className="mt-3 text-lg text-white/60">
-						Meet our talented team of tattoo artists
-					</p>
+					<p className="mt-3 text-lg text-white/60">Meet our talented team of tattoo artists</p>
 				</div>
 
 				{/* Loading State */}

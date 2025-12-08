@@ -36,7 +36,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
 
 				{/* Portfolio count badge */}
 				{portfolioCount > 0 && (
-					<div className="absolute bottom-3 right-3 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+					<div className="absolute right-3 bottom-3 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
 						{portfolioCount} {portfolioCount === 1 ? "work" : "works"}
 					</div>
 				)}
@@ -48,11 +48,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
 				<div className="flex items-center gap-3">
 					<div className="h-10 w-10 overflow-hidden rounded-full bg-[#0a0a0a]">
 						{artist.profileImageUrl ? (
-							<img
-								src={artist.profileImageUrl}
-								alt={fullName}
-								className="h-full w-full object-cover"
-							/>
+							<img src={artist.profileImageUrl} alt={fullName} className="h-full w-full object-cover" />
 						) : (
 							<div className="flex h-full w-full items-center justify-center">
 								<span className="text-sm font-medium text-white/60">
