@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { BookingForm, type BookingFormData } from "../components/BookingForm";
 import { DateSelection } from "../components/DateSelection";
 import { TimeSlotPicker } from "../components/TimeSlotPicker";
@@ -24,6 +24,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage
 
 export const BookingRoute = () => {
 	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
 	const { user } = useAuth();
 	const { data: artists } = useArtists();
 	const [step, setStep] = useState<BookingStep>("service");
@@ -33,6 +34,18 @@ export const BookingRoute = () => {
 	const [startDate, setStartDate] = useState<Date | null>(new Date());
 	const [selectedTime, setSelectedTime] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	// Pre-select artist from URL query param (e.g., /booking?artist=abc123)
+	useEffect(() => {
+		const artistParam = searchParams.get("artist");
+		if (artistParam && artists) {
+			// Verify the artist exists before selecting
+			const artistExists = artists.some((a) => a.id === artistParam);
+			if (artistExists) {
+				setSelectedArtistId(artistParam);
+			}
+		}
+	}, [searchParams, artists]);
 
 	const { availableTimes, isLoading: isLoadingAvailability } = useAvailability(
 		startDate || undefined,
