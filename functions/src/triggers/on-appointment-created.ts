@@ -32,15 +32,17 @@ export const onAppointmentCreated = onDocumentCreated(
 			status: data.status,
 		});
 
-		// Generate cancellation token if not already present
+		// Use cancellation token from document (generated client-side)
+		// Fallback to server-side generation for backwards compatibility
 		let cancellationToken = data.cancellationToken;
 		if (!cancellationToken) {
+			logger.warn("No cancellation token found, generating server-side (legacy flow)", { appointmentId });
 			cancellationToken = randomUUID();
 			try {
 				await getFirestore().collection("appointments").doc(appointmentId).update({
 					cancellationToken,
 				});
-				logger.info("Generated cancellation token", { appointmentId });
+				logger.info("Generated cancellation token server-side", { appointmentId });
 			} catch (error) {
 				logger.error("Failed to store cancellation token", { appointmentId, error });
 				// Continue with email - token generation failure shouldn't block the email
