@@ -100,9 +100,15 @@ export async function cancelAppointmentByToken(appointmentId: string, token: str
 		return { success: false, error: "ALREADY_COMPLETED" };
 	}
 
-	// Check 24-hour restriction
+	// Check if appointment has already passed
 	const now = new Date();
 	const appointmentTime = data.startTime.toDate();
+
+	if (appointmentTime <= now) {
+		return { success: false, error: "ALREADY_COMPLETED" };
+	}
+
+	// Check 24-hour restriction
 	const hoursUntilAppointment = (appointmentTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
 	if (hoursUntilAppointment < MIN_HOURS_BEFORE_CANCEL) {

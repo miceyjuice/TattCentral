@@ -163,6 +163,24 @@ describe("cancelAppointmentByToken", () => {
 		expect(mockUpdateDoc).not.toHaveBeenCalled();
 	});
 
+	it("returns ALREADY_COMPLETED error for past appointment", async () => {
+		const pastDate = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago
+
+		mockGetDoc.mockResolvedValue(
+			createMockAppointment({
+				startTime: { toDate: () => pastDate },
+			}) as never,
+		);
+
+		const result = await cancelAppointmentByToken("appointment-123", "valid-token-123");
+
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error).toBe("ALREADY_COMPLETED");
+		}
+		expect(mockUpdateDoc).not.toHaveBeenCalled();
+	});
+
 	it("returns TOO_LATE error when within 24 hours of appointment", async () => {
 		const now = new Date();
 		const soonDate = new Date(now.getTime() + 12 * 60 * 60 * 1000); // 12 hours from now
