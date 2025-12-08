@@ -1,0 +1,1 @@
+export { ArtistProfilePage } from "./ArtistProfilePage";
