@@ -217,6 +217,8 @@ function footerHtml(): string {
 
 /**
  * Generates the cancellation link section for emails
+ * Note: cancellationUrl is not HTML-escaped because it's a URL with query parameters.
+ * The URL is constructed safely from a UUID token which contains only alphanumeric characters and hyphens.
  */
 function cancellationLinkHtml(cancellationUrl: string | undefined, isPending: boolean): string {
 	if (!cancellationUrl) return "";
@@ -228,7 +230,7 @@ function cancellationLinkHtml(cancellationUrl: string | undefined, isPending: bo
       <p style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin: 0 0 8px 0;">
         Need to cancel? You can do so up to 24 hours before your appointment.
       </p>
-      <a href="${escapeHtml(cancellationUrl)}" style="color: rgba(255, 255, 255, 0.5); font-size: 12px; text-decoration: underline;" target="_blank" rel="noopener noreferrer">${linkText}</a>
+      <a href="${cancellationUrl}" style="color: rgba(255, 255, 255, 0.5); font-size: 12px; text-decoration: underline;" target="_blank" rel="noopener noreferrer">${linkText}</a>
     </div>
   `;
 }
