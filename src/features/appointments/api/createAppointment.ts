@@ -2,7 +2,7 @@ import { collection, doc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { AppointmentDocument } from "../types";
 
-export type CreateAppointmentData = Omit<AppointmentDocument, "id" | "startTime" | "endTime"> & {
+export type CreateAppointmentData = Omit<AppointmentDocument, "id" | "startTime" | "endTime" | "cancellationToken"> & {
 	startTime: Date;
 	endTime: Date;
 };
@@ -19,15 +19,21 @@ export const generateAppointmentId = (): string => {
 /**
  * Creates an appointment with a specific ID.
  * Use generateAppointmentId() first if you need the ID before creation.
+ * Automatically generates a cancellation token for the appointment.
  */
 export const createAppointment = async (data: CreateAppointmentData, appointmentId?: string) => {
 	const appointmentsCollection = collection(db, "appointments");
 	const docRef = appointmentId ? doc(appointmentsCollection, appointmentId) : doc(appointmentsCollection);
 
+	// Generate cancellation token client-side to avoid race condition
+	// with Firebase trigger needing to update the document after creation
+	const cancellationToken = crypto.randomUUID();
+
 	await setDoc(docRef, {
 		...data,
 		startTime: Timestamp.fromDate(data.startTime),
 		endTime: Timestamp.fromDate(data.endTime),
+		cancellationToken,
 	});
 
 	return docRef.id;

@@ -1,4 +1,4 @@
-import { AppointmentEmailData } from "../types";
+import { AppointmentEmailData } from "../types/index.js";
 
 /**
  * Escapes HTML special characters to prevent XSS attacks
@@ -216,6 +216,26 @@ function footerHtml(): string {
 }
 
 /**
+ * Generates the cancellation link section for emails
+ * Note: cancellationUrl is not HTML-escaped because it's a URL with query parameters.
+ * The URL is constructed safely from a UUID token which contains only alphanumeric characters and hyphens.
+ */
+function cancellationLinkHtml(cancellationUrl: string | undefined, isPending: boolean): string {
+	if (!cancellationUrl) return "";
+
+	const linkText = isPending ? "Cancel Request" : "Cancel Appointment";
+
+	return `
+    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+      <p style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin: 0 0 8px 0;">
+        Need to cancel? You can do so up to 24 hours before your appointment.
+      </p>
+      <a href="${cancellationUrl}" style="color: rgba(255, 255, 255, 0.5); font-size: 12px; text-decoration: underline;" target="_blank" rel="noopener noreferrer">${linkText}</a>
+    </div>
+  `;
+}
+
+/**
  * Booking confirmation email (pending status)
  */
 export function bookingConfirmationHtml(data: AppointmentEmailData): string {
@@ -247,6 +267,8 @@ export function bookingConfirmationHtml(data: AppointmentEmailData): string {
           <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-top: 24px;">
             If you have any questions, feel free to contact us.
           </p>
+          
+          ${cancellationLinkHtml(data.cancellationUrl, true)}
         </div>
         ${footerHtml()}
       </div>
@@ -293,9 +315,7 @@ export function appointmentApprovedHtml(data: AppointmentEmailData): string {
             <a href="${outlookCalendarUrl}" style="${styles.buttonOutline}" target="_blank" rel="noopener noreferrer" aria-label="Add to Outlook Calendar">Outlook</a>
           </div>
           
-          <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-top: 24px;">
-            Need to make changes? Please contact us at least 24 hours before your appointment.
-          </p>
+          ${cancellationLinkHtml(data.cancellationUrl, false)}
         </div>
         ${footerHtml()}
       </div>
@@ -445,9 +465,7 @@ export function appointmentRescheduledHtml(
             <a href="${outlookCalendarUrl}" style="${styles.buttonOutline}" target="_blank" rel="noopener noreferrer" aria-label="Add to Outlook Calendar">Outlook</a>
           </div>
           
-          <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-top: 24px;">
-            If this new time doesn't work for you, please contact us as soon as possible.
-          </p>
+          ${cancellationLinkHtml(data.cancellationUrl, false)}
         </div>
         ${footerHtml()}
       </div>

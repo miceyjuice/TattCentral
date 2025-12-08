@@ -6,8 +6,8 @@ import {
 	appointmentCancelledHtml,
 	appointmentRescheduledHtml,
 	escapeHtml,
-} from "./templates";
-import { AppointmentEmailData } from "../types";
+} from "./templates.js";
+import { AppointmentEmailData } from "../types/index.js";
 
 const mockEmailData: AppointmentEmailData = {
 	appointmentId: "test-123",

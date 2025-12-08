@@ -6,6 +6,7 @@ import AdminHistory from "@/modules/admin/routes/AdminHistory";
 import AdminSettings from "@/modules/admin/routes/AdminSettings";
 import { BookingRoute } from "@/modules/booking/routes/BookingRoute";
 import { BookingConfirmation } from "@/modules/booking/routes/BookingConfirmation";
+import { CancelAppointmentPage } from "@/pages/CancelAppointmentPage/CancelAppointmentPage";
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import LandingPage from "@/pages/LandingPage/LandingPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -18,6 +19,7 @@ function App() {
 				<Route path="/" element={<LandingPage />} />
 				<Route path="/booking" element={<BookingRoute />} />
 				<Route path="/booking/confirmation" element={<BookingConfirmation />} />
+				<Route path="/cancel/:appointmentId" element={<CancelAppointmentPage />} />
 				<Route
 					path="/admin"
 					element={
