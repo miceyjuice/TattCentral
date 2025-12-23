@@ -228,7 +228,7 @@ export function BookingConfirmation() {
 					<div className="flex flex-wrap gap-3">
 						<Button
 							variant="outline"
-							className="border-white/20 bg-transparent text-white hover:bg-white/10"
+							className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
 							onClick={() =>
 								window.open(generateGoogleCalendarUrl(state), "_blank", "noopener,noreferrer")
 							}
@@ -239,7 +239,7 @@ export function BookingConfirmation() {
 
 						<Button
 							variant="outline"
-							className="border-white/20 bg-transparent text-white hover:bg-white/10"
+							className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
 							onClick={() =>
 								window.open(generateOutlookCalendarUrl(state), "_blank", "noopener,noreferrer")
 							}
@@ -250,7 +250,7 @@ export function BookingConfirmation() {
 
 						<Button
 							variant="outline"
-							className="border-white/20 bg-transparent text-white hover:bg-white/10"
+							className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
 							onClick={() => downloadIcsFile(state)}
 						>
 							<ExternalLink aria-hidden="true" className="mr-2 h-4 w-4" />
