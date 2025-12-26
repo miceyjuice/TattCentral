@@ -61,13 +61,13 @@ export async function uploadPortfolioImage(artistId: string, file: File, caption
 	// Get download URL
 	const url = await getDownloadURL(storageRef);
 
-	// Create portfolio image object
+	// Create portfolio image object (only include caption if defined)
 	const portfolioImage: PortfolioImage = {
 		id: imageId,
 		url,
 		storagePath,
-		caption,
 		createdAt: Timestamp.now(),
+		...(caption !== undefined && { caption }),
 	};
 
 	// Add to user's portfolioImages array
