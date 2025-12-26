@@ -233,7 +233,7 @@ export function ArtistEditSheet({ artist, open, onOpenChange }: ArtistEditSheetP
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent
 				side="right"
-				className="w-full overflow-y-auto border-white/10 bg-[#1a1a1a] text-white sm:max-w-lg"
+				className="w-full overflow-y-auto border-white/10 bg-[#1a1a1a] px-6 py-8 text-white sm:max-w-lg"
 			>
 				<SheetHeader className="border-b border-white/10 pb-4">
 					<SheetTitle className="text-white">Edit Artist Profile</SheetTitle>

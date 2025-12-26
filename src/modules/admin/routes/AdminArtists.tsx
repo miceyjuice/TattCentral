@@ -52,17 +52,20 @@ function ErrorState({ message }: { message: string }) {
 
 const AdminArtists = () => {
 	const { data: artists, isLoading, error } = useArtists();
-	const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+	const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
 	const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
 
+	// Get the current artist data from the query (always fresh)
+	const selectedArtist = artists?.find((a) => a.id === selectedArtistId) ?? null;
+
 	const handleEditArtist = (artist: Artist) => {
-		setSelectedArtist(artist);
+		setSelectedArtistId(artist.id);
 		setIsEditSheetOpen(true);
 	};
 
 	const handleCloseSheet = () => {
 		setIsEditSheetOpen(false);
-		setSelectedArtist(null);
+		setSelectedArtistId(null);
 	};
 
 	return (
