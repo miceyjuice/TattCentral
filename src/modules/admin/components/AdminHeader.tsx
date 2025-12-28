@@ -34,7 +34,7 @@ const AdminHeader = ({ title, description }: AdminHeaderProps) => {
 				<h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
 				<p className="text-base text-white/60">{description}</p>
 			</div>
-			<div className="flex flex-wrap items-center gap-4">
+			<div className="flex flex-3/5 items-center justify-end gap-4">
 				<CreateAppointmentDialog />
 				<button
 					className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-[#241a1a] text-white/60 transition hover:text-white"

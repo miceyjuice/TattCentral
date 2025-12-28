@@ -1,4 +1,7 @@
+import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
+import { useArtists } from "@/features/artists";
+import { User } from "lucide-react";
 
 const LandingPage = () => {
 	return (
@@ -78,52 +81,75 @@ const TattooWorkSection = () => {
 };
 
 const OurArtistsSection = () => {
+	const { data: artists, isLoading } = useArtists();
+
+	// Show max 5 artists on landing page
+	const displayedArtists = artists?.slice(0, 5) ?? [];
+
 	return (
 		<section className="flex w-full flex-col gap-4 px-10">
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold">Our artists</h2>
+				<Link
+					to="/artists"
+					className="text-sm text-blue-400 transition-colors hover:text-blue-300 hover:underline"
+				>
+					View all →
+				</Link>
 			</div>
-			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-				<div className="flex flex-col gap-4">
-					<div className="rounded-full">
-						<img
-							src="src/assets/images/artist-1.png"
-							alt="Tattoo 1"
-							className="h-auto w-full rounded-full"
-						/>
-					</div>
-					<div className="text-center">
-						<h3 className="text-lg font-semibold">Sophia Bennett</h3>
-						<p className="text-sm text-gray-500">Specialty: Black & Grey</p>
-					</div>
+
+			{/* Loading state */}
+			{isLoading && (
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+					{[1, 2, 3].map((i) => (
+						<div key={i} className="flex animate-pulse flex-col items-center gap-4">
+							<div className="h-40 w-40 rounded-full bg-white/10" />
+							<div className="h-4 w-24 rounded bg-white/10" />
+							<div className="h-3 w-20 rounded bg-white/10" />
+						</div>
+					))}
 				</div>
-				<div className="flex flex-col gap-4">
-					<div className="rounded-full">
-						<img
-							src="src/assets/images/artist-2.png"
-							alt="Tattoo 2"
-							className="h-auto w-full rounded-full"
-						/>
-					</div>
-					<div className="text-center">
-						<h3 className="text-lg font-semibold">Liam Carter</h3>
-						<p className="text-sm text-gray-500">Specialty: Color</p>
-					</div>
+			)}
+
+			{/* Artists grid */}
+			{!isLoading && displayedArtists.length > 0 && (
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+					{displayedArtists.map((artist) => (
+						<Link
+							key={artist.id}
+							to={`/artists/${artist.id}`}
+							className="group flex flex-col items-center gap-4"
+						>
+							<div className="h-40 w-40 overflow-hidden rounded-full bg-[#1a1a1a] transition-transform group-hover:scale-105">
+								{artist.profileImageUrl ? (
+									<img
+										src={artist.profileImageUrl}
+										alt={`${artist.firstName} ${artist.lastName}`}
+										className="h-full w-full object-cover"
+									/>
+								) : (
+									<div className="flex h-full w-full items-center justify-center">
+										<User className="h-12 w-12 text-white/30" aria-hidden="true" />
+									</div>
+								)}
+							</div>
+							<div className="text-center">
+								<h3 className="text-lg font-semibold text-white transition-colors group-hover:text-blue-400">
+									{artist.firstName} {artist.lastName}
+								</h3>
+								{artist.specialties && artist.specialties.length > 0 && (
+									<p className="text-sm text-gray-500">{artist.specialties[0]}</p>
+								)}
+							</div>
+						</Link>
+					))}
 				</div>
-				<div className="flex flex-col gap-4">
-					<div className="rounded-full">
-						<img
-							src="src/assets/images/artist-3.png"
-							alt="Tattoo 3"
-							className="h-auto w-full rounded-full"
-						/>
-					</div>
-					<div className="text-center">
-						<h3 className="text-lg font-semibold">Noah Smith</h3>
-						<p className="text-sm text-gray-500">Specialty: Neo Traditional</p>
-					</div>
-				</div>
-			</div>
+			)}
+
+			{/* Empty state */}
+			{!isLoading && displayedArtists.length === 0 && (
+				<p className="py-8 text-center text-white/60">No artists available at the moment.</p>
+			)}
 		</section>
 	);
 };
@@ -132,7 +158,7 @@ const ClientTestimonialsSection = () => {
 	return (
 		<section className="flex w-full flex-col gap-4 px-10">
 			<div className="flex items-center justify-between">
-				<h2 className="text-2xl font-bold">Client testimonials</h2>
+				<h2 className="text-2xl font-bold text-white">Client testimonials</h2>
 			</div>
 			<div className="relative flex min-h-[30rem] w-full flex-col justify-end gap-2 rounded-4xl bg-[url('/src/assets/images/tattoo-studio-client-testimony-bg.jpg')] bg-cover bg-center p-12 text-white after:absolute after:inset-0 after:rounded-4xl after:bg-black/50 after:content-['']">
 				<h4 className="z-20 text-lg font-bold">John Doe</h4>

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { BookingForm, type BookingFormData } from "../components/BookingForm";
 import { DateSelection } from "../components/DateSelection";
 import { TimeSlotPicker } from "../components/TimeSlotPicker";
@@ -24,6 +24,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage
 
 export const BookingRoute = () => {
 	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
 	const { user } = useAuth();
 	const { data: artists } = useArtists();
 	const [step, setStep] = useState<BookingStep>("service");
@@ -33,6 +34,30 @@ export const BookingRoute = () => {
 	const [startDate, setStartDate] = useState<Date | null>(new Date());
 	const [selectedTime, setSelectedTime] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	// Pre-select artist from URL query param (e.g., /booking?artist=abc123)
+	useEffect(() => {
+		const artistParam = searchParams.get("artist");
+		if (!artistParam) return;
+
+		// Wait for artists data to load before validating
+		if (!artists) return;
+
+		// Verify the artist exists before selecting
+		const artistExists = artists.some((a) => a.id === artistParam);
+		if (artistExists) {
+			setSelectedArtistId(artistParam);
+		} else {
+			// Invalid artist ID - show feedback and clear from URL
+			toast.error("Artist not found", {
+				description: "The requested artist is not available. Please select another artist.",
+			});
+			// Remove invalid artist param from URL without navigation
+			const newParams = new URLSearchParams(searchParams);
+			newParams.delete("artist");
+			window.history.replaceState({}, "", `${window.location.pathname}?${newParams.toString()}`);
+		}
+	}, [searchParams, artists]);
 
 	const { availableTimes, isLoading: isLoadingAvailability } = useAvailability(
 		startDate || undefined,

@@ -7,6 +7,8 @@ import AdminSettings from "@/modules/admin/routes/AdminSettings";
 import { BookingRoute } from "@/modules/booking/routes/BookingRoute";
 import { BookingConfirmation } from "@/modules/booking/routes/BookingConfirmation";
 import { CancelAppointmentPage } from "@/pages/CancelAppointmentPage/CancelAppointmentPage";
+import { ArtistsPage } from "@/pages/ArtistsPage";
+import { ArtistProfilePage } from "@/pages/ArtistProfilePage";
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import LandingPage from "@/pages/LandingPage/LandingPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -20,6 +22,8 @@ function App() {
 				<Route path="/booking" element={<BookingRoute />} />
 				<Route path="/booking/confirmation" element={<BookingConfirmation />} />
 				<Route path="/cancel/:appointmentId" element={<CancelAppointmentPage />} />
+				<Route path="/artists" element={<ArtistsPage />} />
+				<Route path="/artists/:artistId" element={<ArtistProfilePage />} />
 				<Route
 					path="/admin"
 					element={
