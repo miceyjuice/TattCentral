@@ -134,7 +134,7 @@ const OurArtistsSection = () => {
 								)}
 							</div>
 							<div className="text-center">
-								<h3 className="text-lg font-semibold transition-colors group-hover:text-blue-400">
+								<h3 className="text-lg font-semibold text-white transition-colors group-hover:text-blue-400">
 									{artist.firstName} {artist.lastName}
 								</h3>
 								{artist.specialties && artist.specialties.length > 0 && (
@@ -158,7 +158,7 @@ const ClientTestimonialsSection = () => {
 	return (
 		<section className="flex w-full flex-col gap-4 px-10">
 			<div className="flex items-center justify-between">
-				<h2 className="text-2xl font-bold">Client testimonials</h2>
+				<h2 className="text-2xl font-bold text-white">Client testimonials</h2>
 			</div>
 			<div className="relative flex min-h-[30rem] w-full flex-col justify-end gap-2 rounded-4xl bg-[url('/src/assets/images/tattoo-studio-client-testimony-bg.jpg')] bg-cover bg-center p-12 text-white after:absolute after:inset-0 after:rounded-4xl after:bg-black/50 after:content-['']">
 				<h4 className="z-20 text-lg font-bold">John Doe</h4>
