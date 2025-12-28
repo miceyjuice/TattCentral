@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -122,6 +122,7 @@ export function ArtistEditSheet({ artist, open, onOpenChange }: ArtistEditSheetP
 	const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
 	const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
 	const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
+	const portfolioInputRef = useRef<HTMLInputElement>(null);
 
 	const updateProfile = useUpdateArtistProfile();
 	const uploadProfileImage = useUploadProfileImage();
@@ -185,8 +186,10 @@ export function ArtistEditSheet({ artist, open, onOpenChange }: ArtistEditSheetP
 				artistId: artist.id,
 				file,
 			});
-			// Reset input
-			event.target.value = "";
+			// Reset input via ref (safer than using event.target after async)
+			if (portfolioInputRef.current) {
+				portfolioInputRef.current.value = "";
+			}
 		}
 	};
 
@@ -362,6 +365,7 @@ export function ArtistEditSheet({ artist, open, onOpenChange }: ArtistEditSheetP
 									</label>
 									<input
 										id="portfolio-image-upload"
+										ref={portfolioInputRef}
 										type="file"
 										accept="image/*"
 										onChange={handlePortfolioImageUpload}
