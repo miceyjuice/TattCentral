@@ -263,7 +263,8 @@ export function ArtistEditSheet({ artist, open, onOpenChange }: ArtistEditSheetP
 									</div>
 									<label
 										htmlFor="profile-image-upload"
-										className="absolute -right-1 -bottom-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-black hover:bg-white/90"
+										className="absolute -right-1 -bottom-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-black hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1a1a]"
+										tabIndex={0}
 									>
 										<Camera className="h-4 w-4" aria-hidden="true" />
 										<span className="sr-only">Change profile picture</span>
