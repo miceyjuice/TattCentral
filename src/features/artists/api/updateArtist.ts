@@ -1,4 +1,4 @@
-import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import type { PortfolioImage, TattooStyle } from "../types";
@@ -50,10 +50,34 @@ export async function updateArtistProfile(
 }
 
 /**
+ * Extracts the storage path from a Firebase Storage download URL
+ * Returns null if the URL is not a valid Firebase Storage URL
+ */
+function extractStoragePathFromUrl(url: string): string | null {
+	try {
+		// Firebase Storage URLs contain the path after /o/ and before ?
+		// Example: https://firebasestorage.googleapis.com/v0/b/bucket/o/profiles%2FartistId%2Fprofile.jpg?alt=media
+		const match = url.match(/\/o\/([^?]+)/);
+		if (match?.[1]) {
+			return decodeURIComponent(match[1]);
+		}
+		return null;
+	} catch {
+		return null;
+	}
+}
+
+/**
  * Uploads a profile image for an artist
+ * Deletes the old profile image if one exists
  * Returns the download URL
  */
 export async function uploadProfileImage(artistId: string, file: File): Promise<string> {
+	// Fetch current profile to get old image URL
+	const artistRef = doc(db, "users", artistId);
+	const artistDoc = await getDoc(artistRef);
+	const currentProfileImageUrl = artistDoc.data()?.profileImageUrl as string | undefined;
+
 	// Generate unique filename with extension from MIME type
 	const extension = getFileExtension(file);
 	const filename = `profile_${Date.now()}.${extension}`;
@@ -67,10 +91,23 @@ export async function uploadProfileImage(artistId: string, file: File): Promise<
 	const downloadUrl = await getDownloadURL(storageRef);
 
 	// Update user document with new profile image URL
-	const artistRef = doc(db, "users", artistId);
 	await updateDoc(artistRef, {
 		profileImageUrl: downloadUrl,
 	});
+
+	// Delete old profile image if it exists (after successful update)
+	if (currentProfileImageUrl) {
+		const oldStoragePath = extractStoragePathFromUrl(currentProfileImageUrl);
+		if (oldStoragePath) {
+			try {
+				const oldStorageRef = ref(storage, oldStoragePath);
+				await deleteObject(oldStorageRef);
+			} catch (error) {
+				// Old file might not exist, log warning but don't fail
+				console.warn("Failed to delete old profile image:", error);
+			}
+		}
+	}
 
 	return downloadUrl;
 }
