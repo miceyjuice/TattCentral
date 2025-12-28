@@ -1,6 +1,27 @@
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { Artist, ArtistDocument } from "../types";
+import type { Artist, ArtistDocument, PortfolioImage } from "../types";
+
+/**
+ * Sorts portfolio images by createdAt descending (newest first)
+ */
+function sortPortfolioImages(images?: PortfolioImage[]): PortfolioImage[] | undefined {
+	if (!images || images.length === 0) {
+		return images;
+	}
+	return [...images].sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+}
+
+/**
+ * Transforms artist document data, including sorting portfolio images
+ */
+function transformArtistData(id: string, data: ArtistDocument): Artist {
+	return {
+		id,
+		...data,
+		portfolioImages: sortPortfolioImages(data.portfolioImages),
+	};
+}
 
 /**
  * Fetches all artists from Firestore
@@ -10,10 +31,7 @@ export async function getArtists(): Promise<Artist[]> {
 	const q = query(collection(db, "users"), where("role", "==", "artist"));
 	const snapshot = await getDocs(q);
 
-	return snapshot.docs.map((doc) => ({
-		id: doc.id,
-		...(doc.data() as ArtistDocument),
-	}));
+	return snapshot.docs.map((doc) => transformArtistData(doc.id, doc.data() as ArtistDocument));
 }
 
 /**
@@ -35,8 +53,5 @@ export async function getArtistById(artistId: string): Promise<Artist | null> {
 		return null;
 	}
 
-	return {
-		id: docSnap.id,
-		...data,
-	};
+	return transformArtistData(docSnap.id, data);
 }
