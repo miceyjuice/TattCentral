@@ -38,12 +38,24 @@ export const BookingRoute = () => {
 	// Pre-select artist from URL query param (e.g., /booking?artist=abc123)
 	useEffect(() => {
 		const artistParam = searchParams.get("artist");
-		if (artistParam && artists) {
-			// Verify the artist exists before selecting
-			const artistExists = artists.some((a) => a.id === artistParam);
-			if (artistExists) {
-				setSelectedArtistId(artistParam);
-			}
+		if (!artistParam) return;
+
+		// Wait for artists data to load before validating
+		if (!artists) return;
+
+		// Verify the artist exists before selecting
+		const artistExists = artists.some((a) => a.id === artistParam);
+		if (artistExists) {
+			setSelectedArtistId(artistParam);
+		} else {
+			// Invalid artist ID - show feedback and clear from URL
+			toast.error("Artist not found", {
+				description: "The requested artist is not available. Please select another artist.",
+			});
+			// Remove invalid artist param from URL without navigation
+			const newParams = new URLSearchParams(searchParams);
+			newParams.delete("artist");
+			window.history.replaceState({}, "", `${window.location.pathname}?${newParams.toString()}`);
 		}
 	}, [searchParams, artists]);
 
