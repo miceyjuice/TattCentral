@@ -128,13 +128,16 @@ export async function uploadPortfolioImage(artistId: string, file: File, caption
 	// Get download URL
 	const url = await getDownloadURL(storageRef);
 
-	// Create portfolio image object (only include caption if defined)
+	// Normalize caption: trim whitespace and convert empty to undefined
+	const normalizedCaption = caption?.trim() || undefined;
+
+	// Create portfolio image object (only include caption if non-empty)
 	const portfolioImage: PortfolioImage = {
 		id: imageId,
 		url,
 		storagePath,
 		createdAt: Timestamp.now(),
-		...(caption !== undefined && { caption }),
+		...(normalizedCaption && { caption: normalizedCaption }),
 	};
 
 	// Add to user's portfolioImages array
