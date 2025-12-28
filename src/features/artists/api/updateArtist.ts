@@ -4,35 +4,34 @@ import { db, storage } from "@/lib/firebase";
 import type { PortfolioImage, TattooStyle } from "../types";
 import { Timestamp } from "firebase/firestore";
 
+/** Supported image MIME types mapped to file extensions */
+const SUPPORTED_IMAGE_TYPES: Record<string, string> = {
+	"image/jpeg": "jpg",
+	"image/jpg": "jpg",
+	"image/png": "png",
+	"image/gif": "gif",
+	"image/webp": "webp",
+};
+
 /**
- * Gets the file extension from MIME type, falling back to filename extension
+ * Validates that the file is a supported image type and returns the extension
+ * @throws Error if file type is not supported
  */
-function getFileExtension(file: File): string {
-	// Map common image MIME types to extensions
-	const mimeToExtension: Record<string, string> = {
-		"image/jpeg": "jpg",
-		"image/jpg": "jpg",
-		"image/png": "png",
-		"image/gif": "gif",
-		"image/webp": "webp",
-		"image/svg+xml": "svg",
-		"image/bmp": "bmp",
-		"image/tiff": "tiff",
-	};
-
-	// Prefer MIME type for accuracy
-	if (file.type && mimeToExtension[file.type]) {
-		return mimeToExtension[file.type];
+function getValidatedImageExtension(file: File): string {
+	// Prefer MIME type for accuracy and security
+	if (file.type && SUPPORTED_IMAGE_TYPES[file.type]) {
+		return SUPPORTED_IMAGE_TYPES[file.type];
 	}
 
-	// Fall back to filename extension
+	// If MIME type is missing/invalid, check filename extension as fallback
 	const filenameExt = file.name.split(".").pop()?.toLowerCase();
-	if (filenameExt && filenameExt.length <= 5) {
-		return filenameExt;
+	const validExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+
+	if (filenameExt && validExtensions.includes(filenameExt)) {
+		return filenameExt === "jpeg" ? "jpg" : filenameExt;
 	}
 
-	// Default to jpg for unknown types
-	return "jpg";
+	throw new Error(`Unsupported image type: ${file.type || "unknown"}. ` + `Supported types: JPEG, PNG, GIF, WebP`);
 }
 
 /**
@@ -78,8 +77,8 @@ export async function uploadProfileImage(artistId: string, file: File): Promise<
 	const artistDoc = await getDoc(artistRef);
 	const currentProfileImageUrl = artistDoc.data()?.profileImageUrl as string | undefined;
 
-	// Generate unique filename with extension from MIME type
-	const extension = getFileExtension(file);
+	// Validate file type and get extension
+	const extension = getValidatedImageExtension(file);
 	const filename = `profile_${Date.now()}.${extension}`;
 	const storagePath = `profiles/${artistId}/${filename}`;
 
@@ -117,9 +116,9 @@ export async function uploadProfileImage(artistId: string, file: File): Promise<
  * Returns the created PortfolioImage object
  */
 export async function uploadPortfolioImage(artistId: string, file: File, caption?: string): Promise<PortfolioImage> {
-	// Generate unique ID and filename with extension from MIME type
+	// Validate file type and generate unique ID
+	const extension = getValidatedImageExtension(file);
 	const imageId = `img_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-	const extension = getFileExtension(file);
 	const storagePath = `portfolio/${artistId}/${imageId}.${extension}`;
 
 	// Upload to Firebase Storage
