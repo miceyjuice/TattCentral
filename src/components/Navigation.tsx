@@ -19,7 +19,7 @@ export const Navigation = ({ showBookNow = true }: NavigationProps) => {
 				</li>
 				<li className="inline-block">
 					<Link to="/artists" className="text-white hover:text-gray-200">
-						Our Artists
+						Our artists
 					</Link>
 				</li>
 				<li className="inline-block">
