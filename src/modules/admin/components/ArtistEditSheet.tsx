@@ -34,7 +34,11 @@ const TATTOO_STYLES: TattooStyle[] = [
 ];
 
 const profileSchema = z.object({
-	bio: z.string().max(500, "Bio must be under 500 characters").optional(),
+	bio: z
+		.string()
+		.max(500, "Bio must be under 500 characters")
+		.transform((val) => (val.trim() === "" ? undefined : val.trim()))
+		.optional(),
 	specialties: z.array(z.string()).max(5, "Maximum 5 specialties"),
 });
 
