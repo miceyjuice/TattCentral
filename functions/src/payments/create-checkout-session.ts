@@ -10,8 +10,6 @@ import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { getStripeClient, getDepositAmountGrosze, requiresPayment } from "./stripe-client.js";
 import type { CreateCheckoutRequest, AppointmentDocument } from "./types.js";
 
-const db = getFirestore();
-
 /**
  * Validate the appointment data from the client
  */
@@ -73,6 +71,7 @@ async function createAppointment(
 		depositAmount: number;
 	},
 ): Promise<string> {
+	const db = getFirestore();
 	const docRef = db.collection("appointments").doc();
 	const cancellationToken = crypto.randomUUID();
 
@@ -135,6 +134,20 @@ export const createCheckoutSession = onCall(
 		// Calculate expiration time (30 minutes from now)
 		const expiresAt = Math.floor(Date.now() / 1000) + 1800;
 
+		// Store only essential metadata (Stripe has 500 char limit per value)
+		// We'll store minimal data and the full appointment in Firestore pending collection
+		const db = getFirestore();
+		const pendingRef = db.collection("pendingAppointments").doc();
+
+		// Store full appointment data in Firestore (pending until payment)
+		await pendingRef.set({
+			...data.appointmentData,
+			serviceId: data.serviceId,
+			depositAmount: depositAmount / 100, // Store in PLN
+			createdAt: Timestamp.now(),
+			expiresAt: Timestamp.fromMillis(expiresAt * 1000),
+		});
+
 		const session = await stripe.checkout.sessions.create({
 			mode: "payment",
 			customer_email: data.appointmentData.clientEmail,
@@ -153,7 +166,8 @@ export const createCheckoutSession = onCall(
 			],
 			payment_method_types: ["card", "blik", "p24"],
 			metadata: {
-				appointmentData: JSON.stringify(data.appointmentData),
+				// Only store the reference ID - webhook will fetch full data from Firestore
+				pendingAppointmentId: pendingRef.id,
 				serviceId: data.serviceId,
 			},
 			success_url: data.successUrl,

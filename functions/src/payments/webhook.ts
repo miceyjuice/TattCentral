@@ -7,55 +7,70 @@
 import { onRequest } from "firebase-functions/v2/https";
 import { defineString } from "firebase-functions/params";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
-import { getStripeClient, DEPOSIT_AMOUNTS_GROSZE } from "./stripe-client.js";
+import { getStripeClient } from "./stripe-client.js";
 import type { AppointmentDataInput, AppointmentDocument } from "./types.js";
 import Stripe from "stripe";
 
-const db = getFirestore();
 const webhookSecret = defineString("STRIPE_WEBHOOK_SECRET");
 
 /**
  * Create appointment from checkout session metadata
+ * Fetches pending appointment data from Firestore using the ID stored in metadata
  */
 async function createAppointmentFromSession(session: Stripe.Checkout.Session): Promise<string> {
 	const metadata = session.metadata;
 
-	if (!metadata?.appointmentData) {
-		throw new Error("Missing appointment data in session metadata");
+	if (!metadata?.pendingAppointmentId) {
+		throw new Error("Missing pending appointment ID in session metadata");
 	}
 
-	const appointmentData: AppointmentDataInput = JSON.parse(metadata.appointmentData);
-	const serviceId = metadata.serviceId ?? "small";
-	const depositAmount = DEPOSIT_AMOUNTS_GROSZE[serviceId] ?? 0;
+	const db = getFirestore();
+
+	// Fetch the pending appointment data
+	const pendingRef = db.collection("pendingAppointments").doc(metadata.pendingAppointmentId);
+	const pendingDoc = await pendingRef.get();
+
+	if (!pendingDoc.exists) {
+		throw new Error(`Pending appointment not found: ${metadata.pendingAppointmentId}`);
+	}
+
+	const pendingData = pendingDoc.data() as AppointmentDataInput & {
+		serviceId: string;
+		depositAmount: number;
+	};
 
 	const docRef = db.collection("appointments").doc();
 	const cancellationToken = crypto.randomUUID();
 
 	const appointment: AppointmentDocument = {
-		artistId: appointmentData.artistId,
+		artistId: pendingData.artistId,
 		clientId: "guest",
-		artistName: appointmentData.artistName,
-		clientName: appointmentData.clientName,
-		clientEmail: appointmentData.clientEmail,
-		clientPhone: appointmentData.clientPhone,
-		description: appointmentData.description,
-		type: appointmentData.type,
-		startTime: Timestamp.fromDate(new Date(appointmentData.startTime)),
-		endTime: Timestamp.fromDate(new Date(appointmentData.endTime)),
+		artistName: pendingData.artistName,
+		clientName: pendingData.clientName,
+		clientEmail: pendingData.clientEmail,
+		clientPhone: pendingData.clientPhone,
+		description: pendingData.description,
+		type: pendingData.type,
+		startTime: Timestamp.fromDate(new Date(pendingData.startTime)),
+		endTime: Timestamp.fromDate(new Date(pendingData.endTime)),
 		status: "pending",
 		imageUrl: "",
-		referenceImageUrls: appointmentData.referenceImageUrls,
-		referenceImagePaths: appointmentData.referenceImagePaths,
+		referenceImageUrls: pendingData.referenceImageUrls,
+		referenceImagePaths: pendingData.referenceImagePaths,
 		cancellationToken,
 		// Payment fields
 		paymentStatus: "paid",
 		paymentIntentId: session.payment_intent as string,
-		depositAmount: depositAmount / 100, // Convert grosze to PLN for storage
+		depositAmount: pendingData.depositAmount,
 		stripeSessionId: session.id,
 		paidAt: Timestamp.now(),
 	};
 
 	await docRef.set(appointment);
+
+	// Delete the pending appointment after successful creation
+	await pendingRef.delete();
+
 	return docRef.id;
 }
 
@@ -71,6 +86,7 @@ async function handleChargeRefunded(charge: Stripe.Charge): Promise<void> {
 	}
 
 	// Find appointment by payment intent ID
+	const db = getFirestore();
 	const snapshot = await db.collection("appointments").where("paymentIntentId", "==", paymentIntentId).limit(1).get();
 
 	if (snapshot.empty) {
