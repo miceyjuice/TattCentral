@@ -18,6 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { addMinutes, setHours, setMinutes } from "date-fns";
 import { Navigation } from "@/components/Navigation";
+import { requiresPayment, useCreateCheckoutSession, isNoPaymentRequired } from "@/features/payments";
 
 import { storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
@@ -34,6 +35,8 @@ export const BookingRoute = () => {
 	const [startDate, setStartDate] = useState<Date | null>(new Date());
 	const [selectedTime, setSelectedTime] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const createCheckout = useCreateCheckoutSession();
 
 	// Pre-select artist from URL query param (e.g., /booking?artist=abc123)
 	useEffect(() => {
@@ -163,21 +166,23 @@ export const BookingRoute = () => {
 				finalArtistName = `${assigned.firstName} ${assigned.lastName}`;
 			}
 
-			// Generate appointment ID first so we can organize uploads
-			const appointmentId = generateAppointmentId();
+			// Check if this service requires payment
+			const needsPayment = requiresPayment(selectedService.id);
 
-			const referenceImageUrls: string[] = [];
-			const referenceImagePaths: string[] = []; // Storage paths for deletion
-			const uploadedRefs: ReturnType<typeof ref>[] = []; // Track uploaded files for cleanup on failure
+			// For paid bookings, we use Cloud Function to handle appointment creation
+			// For free consultations, we create the appointment directly
+			if (needsPayment) {
+				// Upload reference images first (we'll pass URLs to Cloud Function)
+				const referenceImageUrls: string[] = [];
+				const referenceImagePaths: string[] = [];
+				const tempAppointmentId = generateAppointmentId(); // Temporary ID for organizing uploads
 
-			try {
 				if (data.referenceImages && data.referenceImages.length > 0) {
 					const uploadPromises = Array.from(data.referenceImages).map(async (file) => {
 						const uniqueId = crypto.randomUUID().slice(0, 8);
-						const storagePath = `appointments/${appointmentId}/reference-images/${uniqueId}-${file.name}`;
+						const storagePath = `appointments/${tempAppointmentId}/reference-images/${uniqueId}-${file.name}`;
 						const storageRef = ref(storage, storagePath);
 						await uploadBytes(storageRef, file);
-						uploadedRefs.push(storageRef); // Track for potential cleanup
 						const url = await getDownloadURL(storageRef);
 						return { url, path: storagePath };
 					});
@@ -186,47 +191,107 @@ export const BookingRoute = () => {
 					referenceImagePaths.push(...results.map((r) => r.path));
 				}
 
-				await createAppointment(
-					{
+				// Create Stripe checkout session via Cloud Function
+				const result = await createCheckout.mutateAsync({
+					appointmentData: {
 						artistId: finalArtistId!,
 						artistName: finalArtistName,
-						clientId: user?.uid || `guest_${crypto.randomUUID()}`, // Generate unique guest ID
 						clientName: data.name,
 						clientEmail: data.email,
 						clientPhone: data.phone,
 						description: data.tattooDescription,
 						type: selectedService.label,
-						startTime: startDateTime,
-						endTime: endDateTime,
-						status: "pending", // Default to pending
-						imageUrl:
-							"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop", // Placeholder
+						startTime: startDateTime.toISOString(),
+						endTime: endDateTime.toISOString(),
 						referenceImageUrls,
 						referenceImagePaths,
 					},
-					appointmentId,
-				);
-			} catch (uploadError) {
-				// Clean up any uploaded images if appointment creation fails
-				if (uploadedRefs.length > 0) {
-					await Promise.allSettled(uploadedRefs.map((storageRef) => deleteObject(storageRef)));
-				}
-				throw uploadError;
-			}
+					serviceId: selectedService.id,
+					successUrl: `${window.location.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+					cancelUrl: `${window.location.origin}/payment/cancel`,
+				});
 
-			// Navigate to confirmation page with booking details
-			// Convert dates to ISO strings for serialization safety
-			navigate("/booking/confirmation", {
-				state: {
-					appointmentId,
-					clientName: data.name,
-					clientEmail: data.email,
-					artistName: finalArtistName,
-					serviceLabel: selectedService.label,
-					startTime: startDateTime.toISOString(),
-					endTime: endDateTime.toISOString(),
-				},
-			});
+				// Redirect to Stripe Checkout
+				if (!isNoPaymentRequired(result)) {
+					window.location.href = result.sessionUrl;
+					return;
+				}
+
+				// Fallback: if somehow no payment was required, navigate to confirmation
+				navigate("/booking/confirmation", {
+					state: {
+						appointmentId: result.appointmentId,
+						clientName: data.name,
+						clientEmail: data.email,
+						artistName: finalArtistName,
+						serviceLabel: selectedService.label,
+						startTime: startDateTime.toISOString(),
+						endTime: endDateTime.toISOString(),
+					},
+				});
+			} else {
+				// Free consultation - create appointment directly (existing flow)
+				const appointmentId = generateAppointmentId();
+
+				const referenceImageUrls: string[] = [];
+				const referenceImagePaths: string[] = [];
+				const uploadedRefs: ReturnType<typeof ref>[] = [];
+
+				try {
+					if (data.referenceImages && data.referenceImages.length > 0) {
+						const uploadPromises = Array.from(data.referenceImages).map(async (file) => {
+							const uniqueId = crypto.randomUUID().slice(0, 8);
+							const storagePath = `appointments/${appointmentId}/reference-images/${uniqueId}-${file.name}`;
+							const storageRef = ref(storage, storagePath);
+							await uploadBytes(storageRef, file);
+							uploadedRefs.push(storageRef);
+							const url = await getDownloadURL(storageRef);
+							return { url, path: storagePath };
+						});
+						const results = await Promise.all(uploadPromises);
+						referenceImageUrls.push(...results.map((r) => r.url));
+						referenceImagePaths.push(...results.map((r) => r.path));
+					}
+
+					await createAppointment(
+						{
+							artistId: finalArtistId!,
+							artistName: finalArtistName,
+							clientId: user?.uid || `guest_${crypto.randomUUID()}`,
+							clientName: data.name,
+							clientEmail: data.email,
+							clientPhone: data.phone,
+							description: data.tattooDescription,
+							type: selectedService.label,
+							startTime: startDateTime,
+							endTime: endDateTime,
+							status: "pending",
+							imageUrl:
+								"https://images.unsplash.com/photo-1590246295016-4c67e7000d77?q=80&w=2070&auto=format&fit=crop",
+							referenceImageUrls,
+							referenceImagePaths,
+						},
+						appointmentId,
+					);
+				} catch (uploadError) {
+					if (uploadedRefs.length > 0) {
+						await Promise.allSettled(uploadedRefs.map((storageRef) => deleteObject(storageRef)));
+					}
+					throw uploadError;
+				}
+
+				navigate("/booking/confirmation", {
+					state: {
+						appointmentId,
+						clientName: data.name,
+						clientEmail: data.email,
+						artistName: finalArtistName,
+						serviceLabel: selectedService.label,
+						startTime: startDateTime.toISOString(),
+						endTime: endDateTime.toISOString(),
+					},
+				});
+			}
 		} catch (error) {
 			console.error("Booking error:", error);
 			toast.error("Failed to book appointment. Please try again.");

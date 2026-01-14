@@ -2,7 +2,8 @@
  * Firebase Cloud Functions for TattCentral
  *
  * Email notification functions triggered by Firestore document changes
- * @version 2.0.0 - Added cancellation token generation and cancel link in emails
+ * Payment functions for Stripe integration
+ * @version 3.0.0 - Added Stripe payment integration
  */
 
 import { initializeApp } from "firebase-admin/app";
@@ -20,3 +21,6 @@ setGlobalOptions({
 // Export appointment triggers
 export { onAppointmentCreated } from "./triggers/on-appointment-created.js";
 export { onAppointmentUpdated } from "./triggers/on-appointment-updated.js";
+
+// Export payment functions
+export { createCheckoutSession, stripeWebhook } from "./payments/index.js";
