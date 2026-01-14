@@ -1,4 +1,5 @@
 import type { Timestamp } from "firebase/firestore";
+import type { PaymentStatus } from "@/features/payments";
 
 export type AppointmentDocument = {
 	id?: string;
@@ -18,6 +19,13 @@ export type AppointmentDocument = {
 	referenceImagePaths?: string[]; // Storage paths for deletion
 	cancellationToken?: string; // Secure token for client self-cancellation
 	rating?: number;
+	// Payment fields
+	paymentStatus?: PaymentStatus;
+	paymentIntentId?: string; // Stripe PaymentIntent ID
+	depositAmount?: number; // Amount in PLN
+	stripeSessionId?: string; // Checkout session ID
+	paidAt?: Timestamp;
+	refundedAt?: Timestamp;
 };
 
 export type UpcomingAppointment = {
@@ -60,4 +68,9 @@ export type AppointmentDetail = {
 	startTime: Date;
 	endTime: Date;
 	referenceImageUrls?: string[];
+	// Payment fields
+	paymentStatus?: PaymentStatus;
+	depositAmount?: number;
+	paidAt?: Date;
+	refundedAt?: Date;
 };

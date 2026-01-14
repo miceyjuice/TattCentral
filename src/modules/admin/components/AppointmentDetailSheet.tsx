@@ -1,10 +1,29 @@
 import { format } from "date-fns";
-import { Calendar, Check, Loader2, Mail, Phone, X } from "lucide-react";
+import { Calendar, Check, CreditCard, Loader2, Mail, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useAppointmentDetail, useUpdateAppointmentStatus, type UpcomingAppointment } from "@/features/appointments";
 import { useState } from "react";
 import { RescheduleDialog } from "./RescheduleDialog";
+import type { PaymentStatus } from "@/features/payments";
+
+/**
+ * Get payment badge styling based on status
+ */
+function getPaymentBadgeStyles(status: PaymentStatus | undefined): { bg: string; text: string; label: string } {
+	switch (status) {
+		case "paid":
+			return { bg: "bg-green-500/20 border-green-500/50", text: "text-green-400", label: "Paid" };
+		case "refunded":
+			return { bg: "bg-blue-500/20 border-blue-500/50", text: "text-blue-400", label: "Refunded" };
+		case "failed":
+			return { bg: "bg-red-500/20 border-red-500/50", text: "text-red-400", label: "Payment Failed" };
+		case "pending":
+			return { bg: "bg-yellow-500/20 border-yellow-500/50", text: "text-yellow-400", label: "Payment Pending" };
+		default:
+			return { bg: "bg-white/10 border-white/20", text: "text-white/60", label: "No Deposit" };
+	}
+}
 
 interface AppointmentDetailSheetProps {
 	appointment: UpcomingAppointment | null;
@@ -67,7 +86,7 @@ export function AppointmentDetailSheet({ appointment, open, onOpenChange }: Appo
 				) : detail ? (
 					<div className="flex flex-col gap-6 pb-6">
 						{/* Status Badges */}
-						<div className="flex gap-2">
+						<div className="flex flex-wrap gap-2">
 							{detail.status === "pending" && (
 								<div className="flex rounded-full border border-white/10 bg-yellow-500/90 px-3 py-1">
 									<span className="text-[10px] font-medium text-black uppercase">
@@ -78,6 +97,22 @@ export function AppointmentDetailSheet({ appointment, open, onOpenChange }: Appo
 							<div className="border-fire-sunset bg-fire-sunset/20 flex rounded-full border px-3 py-1">
 								<span className="text-[10px] font-medium text-white uppercase">{detail.type}</span>
 							</div>
+							{/* Payment Status Badge */}
+							{(detail.paymentStatus || detail.depositAmount) && (
+								<div
+									className={`flex items-center gap-1.5 rounded-full border px-3 py-1 ${getPaymentBadgeStyles(detail.paymentStatus).bg}`}
+								>
+									<CreditCard
+										className={`h-3 w-3 ${getPaymentBadgeStyles(detail.paymentStatus).text}`}
+									/>
+									<span
+										className={`text-[10px] font-medium uppercase ${getPaymentBadgeStyles(detail.paymentStatus).text}`}
+									>
+										{getPaymentBadgeStyles(detail.paymentStatus).label}
+										{detail.depositAmount ? ` (${detail.depositAmount} PLN)` : ""}
+									</span>
+								</div>
+							)}
 						</div>
 
 						{/* Client Name & DateTime */}

@@ -7,6 +7,8 @@ import AdminSettings from "@/modules/admin/routes/AdminSettings";
 import { BookingRoute } from "@/modules/booking/routes/BookingRoute";
 import { BookingConfirmation } from "@/modules/booking/routes/BookingConfirmation";
 import { CancelAppointmentPage } from "@/pages/CancelAppointmentPage/CancelAppointmentPage";
+import { PaymentSuccessPage } from "@/pages/PaymentSuccessPage";
+import { PaymentCancelPage } from "@/pages/PaymentCancelPage";
 import { ArtistsPage } from "@/pages/ArtistsPage";
 import { ArtistProfilePage } from "@/pages/ArtistProfilePage";
 import LoginPage from "@/pages/LoginPage/LoginPage";
@@ -21,6 +23,8 @@ function App() {
 				<Route path="/" element={<LandingPage />} />
 				<Route path="/booking" element={<BookingRoute />} />
 				<Route path="/booking/confirmation" element={<BookingConfirmation />} />
+				<Route path="/payment/success" element={<PaymentSuccessPage />} />
+				<Route path="/payment/cancel" element={<PaymentCancelPage />} />
 				<Route path="/cancel/:appointmentId" element={<CancelAppointmentPage />} />
 				<Route path="/artists" element={<ArtistsPage />} />
 				<Route path="/artists/:artistId" element={<ArtistProfilePage />} />

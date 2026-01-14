@@ -1,13 +1,13 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BookingRoute } from "../routes/BookingRoute";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "@/context/AuthContext";
+import { renderWithProviders } from "@/test/test-utils";
 import * as useArtistsHook from "../hooks/useArtists";
 import * as useAvailabilityHook from "../hooks/useAvailability";
 import * as createAppointmentApi from "@/features/appointments/api/createAppointment";
 import * as assignArtistUtils from "../utils/assignArtist";
+import * as checkoutSessionApi from "@/features/payments/api/createCheckoutSession";
 import type { UserRole } from "@/features/users";
 
 // Mock dependencies
@@ -74,6 +74,10 @@ describe("BookingRoute", () => {
 
 		vi.spyOn(createAppointmentApi, "createAppointment").mockResolvedValue("new-appointment-id");
 		vi.spyOn(assignArtistUtils, "assignArtist").mockResolvedValue(mockArtists[0]);
+		vi.spyOn(checkoutSessionApi, "createCheckoutSession").mockResolvedValue({
+			sessionId: "test-session-id",
+			sessionUrl: "https://checkout.stripe.com/test-session",
+		});
 	});
 
 	afterEach(() => {
@@ -81,13 +85,7 @@ describe("BookingRoute", () => {
 	});
 
 	const renderComponent = () => {
-		return render(
-			<BrowserRouter>
-				<AuthProvider>
-					<BookingRoute />
-				</AuthProvider>
-			</BrowserRouter>,
-		);
+		return renderWithProviders(<BookingRoute />);
 	};
 
 	it("renders the first step (Service Selection) initially", () => {
@@ -140,12 +138,12 @@ describe("BookingRoute", () => {
 		expect(screen.getByText("Next")).toBeEnabled();
 	});
 
-	it("submits the form successfully", async () => {
+	it("submits the form successfully for consultation (no payment required)", async () => {
 		const user = userEvent.setup();
 		renderComponent();
 
-		// Navigate to final step
-		await user.click(screen.getByText("Small Tattoo"));
+		// Navigate to final step - use Consultation (no payment required)
+		await user.click(screen.getByText("Consultation"));
 		await user.click(screen.getByText("Next"));
 		await user.click(screen.getByText("John Doe"));
 		await user.click(screen.getByText("Next"));
@@ -156,9 +154,9 @@ describe("BookingRoute", () => {
 		await user.type(screen.getByLabelText(/Name/i), "Test User");
 		await user.type(screen.getByLabelText(/Email/i), "test@example.com");
 		await user.type(screen.getByLabelText(/Phone/i), "500 123 456"); // Valid PL number
-		await user.type(screen.getByLabelText(/Tattoo description/i), "A cool dragon tattoo");
+		await user.type(screen.getByLabelText(/Topic of consultation/i), "Want to discuss a design");
 
-		// Submit
+		// Submit - consultation goes directly to createAppointment
 		const submitButton = screen.getByText("Submit");
 		await user.click(submitButton);
 
@@ -167,19 +165,19 @@ describe("BookingRoute", () => {
 				expect.objectContaining({
 					clientName: "Test User",
 					artistId: "1",
-					type: "Small Tattoo",
+					type: "Consultation",
 				}),
 				"mock-appointment-id",
 			);
 		});
 	});
 
-	it("handles 'Any Artist' selection correctly", async () => {
+	it("handles 'Any Artist' selection correctly for consultation", async () => {
 		const user = userEvent.setup();
 		renderComponent();
 
-		// Navigate to final step with "Any Artist"
-		await user.click(screen.getByText("Small Tattoo"));
+		// Navigate to final step with "Any Artist" - use Consultation (no payment required)
+		await user.click(screen.getByText("Consultation"));
 		await user.click(screen.getByText("Next"));
 		await user.click(screen.getByText("Any Artist"));
 		await user.click(screen.getByText("Next"));
@@ -190,7 +188,7 @@ describe("BookingRoute", () => {
 		await user.type(screen.getByLabelText(/Name/i), "Test User");
 		await user.type(screen.getByLabelText(/Email/i), "test@example.com");
 		await user.type(screen.getByLabelText(/Phone/i), "500 123 456");
-		await user.type(screen.getByLabelText(/Tattoo description/i), "A cool dragon tattoo");
+		await user.type(screen.getByLabelText(/Topic of consultation/i), "Want to discuss a design");
 
 		await user.click(screen.getByText("Submit"));
 
@@ -205,11 +203,11 @@ describe("BookingRoute", () => {
 		});
 	});
 
-	it("uploads reference images correctly", async () => {
+	it("uploads reference images correctly for tattoo service (with payment)", async () => {
 		const user = userEvent.setup();
 		renderComponent();
 
-		// Navigate to final step
+		// Navigate to final step - use Small Tattoo (requires payment, has reference images)
 		await user.click(screen.getByText("Small Tattoo"));
 		await user.click(screen.getByText("Next"));
 		await user.click(screen.getByText("John Doe"));
@@ -228,15 +226,17 @@ describe("BookingRoute", () => {
 		const input = screen.getByLabelText(/Reference Images/i);
 		await user.upload(input, file);
 
-		// Submit
+		// Submit - tattoo service goes to checkout session
 		await user.click(screen.getByText("Submit"));
 
 		await waitFor(() => {
-			expect(createAppointmentApi.createAppointment).toHaveBeenCalledWith(
+			expect(checkoutSessionApi.createCheckoutSession).toHaveBeenCalledWith(
 				expect.objectContaining({
-					referenceImageUrls: ["https://example.com/image.jpg"],
+					appointmentData: expect.objectContaining({
+						referenceImageUrls: ["https://example.com/image.jpg"],
+						type: "Small Tattoo",
+					}),
 				}),
-				"mock-appointment-id",
 			);
 		});
 	});

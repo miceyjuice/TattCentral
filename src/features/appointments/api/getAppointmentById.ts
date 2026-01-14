@@ -29,5 +29,10 @@ export const getAppointmentById = async (appointmentId: string): Promise<Appoint
 		startTime: data.startTime.toDate(),
 		endTime: data.endTime.toDate(),
 		referenceImageUrls: data.referenceImageUrls,
+		// Payment fields
+		paymentStatus: data.paymentStatus,
+		depositAmount: data.depositAmount,
+		paidAt: data.paidAt?.toDate(),
+		refundedAt: data.refundedAt?.toDate(),
 	};
 };
