@@ -150,7 +150,14 @@ export const stripeWebhook = onRequest(
 				case "checkout.session.expired": {
 					const session = event.data.object as Stripe.Checkout.Session;
 					console.log(`Checkout session expired: ${session.id}`);
-					// No action needed - appointment was never created
+
+					// Clean up the pending appointment
+					const pendingId = session.metadata?.pendingAppointmentId;
+					if (pendingId) {
+						const db = getFirestore();
+						await db.collection("pendingAppointments").doc(pendingId).delete();
+						console.log(`Deleted pending appointment ${pendingId} after session expiry`);
+					}
 					break;
 				}
 
