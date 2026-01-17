@@ -45,7 +45,15 @@ export async function updateArtistProfile(
 	},
 ): Promise<void> {
 	const artistRef = doc(db, "users", artistId);
-	await updateDoc(artistRef, data);
+
+	// Filter out undefined values - Firestore doesn't accept undefined
+	const cleanedData = Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined));
+
+	if (Object.keys(cleanedData).length === 0) {
+		return; // Nothing to update
+	}
+
+	await updateDoc(artistRef, cleanedData);
 }
 
 /**
