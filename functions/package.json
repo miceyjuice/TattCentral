@@ -6,6 +6,8 @@
 		"build": "tsc",
 		"build:watch": "tsc --watch",
 		"test": "vitest --run",
+		"test:unit": "vitest --run --exclude '**/*.integration.test.ts'",
+		"test:integration": "vitest --run --testNamePattern 'integration|Integration' src/**/*.integration.test.ts",
 		"test:watch": "vitest",
 		"serve": "pnpm build && firebase emulators:start --only functions",
 		"shell": "pnpm build && firebase functions:shell",
